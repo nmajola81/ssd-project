@@ -1,0 +1,64 @@
+{% extends 'base.html' %} <!--Inherit from the base.html template-->
+
+{% block title %}Registration{% endblock %} <!Page title on browser tab>
+
+<!--Body block contains the main content of the page-->
+
+{% block body %}
+<div class="container"> <!Put the body content in a container to improve layout>
+<h1>This is the registration page using inheritence</h1>
+
+<form action="" method="post" novalidate>
+    {{form.csrf_token}}
+
+    <p>
+        {{form.hidden_tag()}} <!-- A hidden field which enables CSRF protection-->
+        {{form.email.label}}<br>
+        {{form.email(size=32)}}
+        
+    </p>
+
+    <p>
+        {{form.forename.label}}<br>
+        {{form.forename (size=30)}}
+
+    </p>
+
+    <p>
+        {{form.familyname.label}}<br>
+        {{form.familyname (size=40)}}
+
+    </p>
+
+    <p>
+        {{form.mobile.label}}<br>
+        {{form.mobile (size=25)}}
+
+    </p>
+
+    <p>
+        {{form.password.label}}<br>
+        {{form.password (size=25)}}
+
+    </p>
+
+    <p>
+        {{form.confirm.label}}<br>
+        {{form.confirm (size=25)}}
+
+    </p>
+        {{form.accept_tos()}} {{form.accept_tos.label}}
+
+
+
+    <p>
+        {{form.submit()}}
+    </p>       
+
+
+    </p>
+
+</form>
+
+</div>
+{% endblock %}

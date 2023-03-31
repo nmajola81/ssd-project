@@ -1,0 +1,17 @@
+{% extends 'base.html' %} <!Inherit from the base.html template>
+
+{% block title %}Home{% endblock %} <!Page title on web browser tab>
+
+
+<!Body block contains the main ontent of the page>
+{% block body %}
+<div class="container"> <!--Puts the body content in a container to improve layout-->
+<h1>This is the home page using inheritence</h1>
+<h2>Hi, {{data}}! this variable [data] (contents=Steve) has been passed from the route in app.py
+    you can use filters here aswell e.g. |capitalize it can aslo be a list or dictionary
+</h2>
+</div>
+{% endblock %}
+
+
+
