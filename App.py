@@ -1,13 +1,35 @@
 from flask import Flask, make_response, request, render_template, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+
 from form import LoginForm, RegistrationForm, ReportForm
+
+from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
 
 app = Flask(__name__) # create an instance of the Flask class
 
 app.config['SECRET_KEY'] = '5c7d9fe414fc668876f91637635567c4' # set the secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
+db = SQLAlchemy(app)
+
+from classdef import User
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
 
 #Define the routes for the app to display specific pages
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Loads user as current_user.
+
+    Args:
+        user_id -- id of logged in user.
+    """
+
+    return User.query.get(int(user_id))
 
 @app.route("/")
 def Index():
