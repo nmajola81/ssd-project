@@ -1,5 +1,6 @@
+import wtforms
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,EmailField, validators, Form, RadioField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField,EmailField, validators, Form, RadioField, SelectField
 from wtforms.validators import Length, Email, EqualTo, ValidationError, InputRequired
 from password_validator import PasswordValidator
 
@@ -11,12 +12,13 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class RegistrationForm(FlaskForm):
-    forename = StringField('Forename', validators=[InputRequired()], render_kw={'placeholder': 'Enter your forename'})
-    familyname = StringField('Family name', validators=[InputRequired()], render_kw={'placeholder': 'Enter your family name'})
-    mobile = StringField('Mobile', validators=[InputRequired()], render_kw={'placeholder': 'Enter your mobile number'})
-    email = EmailField(validators=[InputRequired(), Email()], render_kw={'placeholder': 'Email'})
+    first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': 'Enter your first name'})
+    surname_prefix = SelectField('Surname prefix', choices=[('','[Select one]'),('Mr', 'Mr.'), ('Mrs', 'Mrs.'), ('Ms', 'Ms.'), ('Prof', 'Prof.'), ('Dr', 'Dr.')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"})
+    surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': 'Enter your surname'})
+    email = EmailField(validators=[InputRequired(), Email(), Length(max=40)], render_kw={'placeholder': 'Email'})
     password = PasswordField(validators=[InputRequired(), Length(min=6, max=20)], render_kw={'placeholder': 'Password'})
-    confirm = PasswordField(validators=[InputRequired()], render_kw={'placeholder': 'Confirm Password'})
+    confirm = PasswordField(validators=[InputRequired(),EqualTo('password', message='Passwords must match')], render_kw={'placeholder': 'Confirm Password'})
+    phone_number = StringField('Phone number', render_kw={'placeholder': 'Enter your mobile/phone number'})
     accept_tos = BooleanField('I accept the terms and conditions', validators=[InputRequired()])
     submit = SubmitField('Register')
 

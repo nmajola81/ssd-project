@@ -13,26 +13,33 @@
 
     <p>
         {{form.hidden_tag()}} <!-- A hidden field which enables CSRF protection-->
+        {{form.first_name.label}}<br>
+        {{form.first_name (size=40)}}
+
+    </p>
+
+    <p>
+        {{ form.surname_prefix.label }}<br>
+        {{ form.surname_prefix(class="form-control") }}
+
+    </p>
+
+    <p>
+        {{form.surname.label}}<br>
+        {{form.surname (size=40)}}
+
+
+    </p>
+
+    <p>
         {{form.email.label}}<br>
-        {{form.email(size=32)}}
-        
-    </p>
-
-    <p>
-        {{form.forename.label}}<br>
-        {{form.forename (size=30)}}
+        {{form.email(size=40)}}
 
     </p>
 
     <p>
-        {{form.familyname.label}}<br>
-        {{form.familyname (size=40)}}
-
-    </p>
-
-    <p>
-        {{form.mobile.label}}<br>
-        {{form.mobile (size=25)}}
+        {{form.phone_number.label}}<br>
+        {{form.phone_number (size=40)}}
 
     </p>
 
@@ -56,7 +63,7 @@
     </p>       
 
 
-    </p>
+
 
 </form>
 

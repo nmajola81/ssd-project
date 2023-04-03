@@ -1,9 +1,12 @@
+import werkzeug.security
 from flask import Flask, make_response, request, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 
 from form import LoginForm, RegistrationForm, ReportForm
 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 app = Flask(__name__) # create an instance of the Flask class
@@ -13,13 +16,25 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 db = SQLAlchemy(app)
 
-from classdef import User
+# from classdef import User
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 #Define the routes for the app to display specific pages
+
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String)
+    surname_prefix = db.Column(db.String)
+    surname = db.Column(db.String)
+    email = db.Column(db.String, unique=True)
+    password = db.Column(db.String)
+    phone_number = db.Column(db.String)
+    role = db.Column(db.String, default=False)
+    is_deleted = db.Column(db.Boolean, default=False)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -38,23 +53,56 @@ def Index():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    print("Register route!!!!")
     form = RegistrationForm()
     if form.validate_on_submit():
-        #acces the data from fields in the form like this print(form.email)
-        flash("Thank you for registering")
+        #access the data from fields in the form like this print(form.email)
+        print("Validated!")
+        if User.query.filter_by(email=form.email.data).first():
+            flash('This email is unavailable. Please use a different email.')
+            return redirect('/register')
+
+        add_user = User(
+            first_name=form.first_name.data,
+            surname_prefix=form.surname_prefix.data,
+            surname=form.surname.data,
+            email=form.email.data,
+            password=generate_password_hash(form.password.data, 'sha256'),
+            phone_number=form.phone_number.data,
+            role="User",
+            is_deleted=0
+        )
+
+        db.session.add(add_user)
+        db.session.commit()
+
+        flash(f"Account for {form.email.data} successfully created", "success")
         return redirect(url_for('login'))
-    else:
-        return render_template("register.html", form=form)
+
+    print("Rejected!")
+    return render_template("register.html", form=form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        flash("Login Successful")
+        user = User.query.filter_by(email=form.email.data).first()
+
+        if not user or not check_password_hash(user.password,form.password.data):
+            flash ("Login failed: Invalid/Unknown login credentials.")
+            return redirect('/login')
+
+
+        login_user(user)
         return redirect(url_for('Dashboard'))
-    else:
-        return render_template("login.html", title="Login", form=form)
-    
+
+    return render_template("login.html", title="Login", form=form)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect('/login')
+
 @app.route("/report", methods=["GET", "POST"])
 def report():
     form = ReportForm()
