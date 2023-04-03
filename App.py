@@ -53,11 +53,15 @@ def Index():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    print("Register route!!!!")
+
+    if (current_user.is_authenticated):
+        print("Logged in")
+        return redirect(url_for('dashboard'))
+
     form = RegistrationForm()
     if form.validate_on_submit():
         #access the data from fields in the form like this print(form.email)
-        print("Validated!")
+
         if User.query.filter_by(email=form.email.data).first():
             flash('This email is unavailable. Please use a different email.')
             return redirect('/register')
@@ -79,11 +83,17 @@ def register():
         flash(f"Account for {form.email.data} successfully created", "success")
         return redirect(url_for('login'))
 
-    print("Rejected!")
+
     return render_template("register.html", form=form)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
+    if (current_user.is_authenticated):
+        print("Logged in")
+        return redirect(url_for('dashboard'))
+        # return redirect('/dashboard')
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
@@ -94,7 +104,7 @@ def login():
 
 
         login_user(user)
-        return redirect(url_for('Dashboard'))
+        return redirect(url_for('dashboard'))
 
     return render_template("login.html", title="Login", form=form)
 
@@ -104,16 +114,18 @@ def logout():
     return redirect('/login')
 
 @app.route("/report", methods=["GET", "POST"])
+@login_required
 def report():
     form = ReportForm()
     if form.validate_on_submit():
         flash("Report Submission Successful")
-        return redirect(url_for('Dashboard'))
+        return redirect(url_for('dashboard'))
     else:
         return render_template("report.html", title="report", form=form)
 
 @app.route("/dashboard")
-def Dashboard():
+@login_required
+def dashboard():
     return render_template("dashboard.html")
 
 
