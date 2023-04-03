@@ -23,9 +23,22 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
 class ReportForm(FlaskForm):
-    vulnerability = RadioField('Label', choices=[('value','Injection'),('value_two','Broken Authentication'),('value_three','Sensitive Data Exposure'),('value_four','XML External Entities'),('value_five','Cross Site Scripting'),('value_six','Broken Access Control'),('value_seven','Insecure Deserialisation'),('value_eight','Availability'),('value_nine','Integrity'),('value_10','Confidentiality'),('value_eleven','Other')], default='value')
-    explanation = TextAreaField('Explanation of vulnerability - 250 characters max', validators=[InputRequired(), Length(min=1, max=250)])
-    whyreport = TextAreaField('Why are you reporting this vulnerability? - 250 characters max', validators=[InputRequired(), Length(min=1, max=250)])
+    vuln_types = [('injection', 'Injection'),
+                  ('broken_authentication', 'Broken Authentication'),
+                  ('sensitive_data_exposure', 'Sensitive Data Exposure'),
+                  ('xml_external_entities', 'XML External Entities'),
+                  ('security_misconfigurations', 'Security Misconfigurations'),
+                  ('cross_site_scripting', 'Cross Site Scripting'),
+                  ('broken_access_control', 'Broken Access Control'),
+                  ('insecure_deserialisation', 'Insecure Deserialisation'),
+                  ('availability', 'Availability'),
+                  ('integrity', 'Integrity'),
+                  ('confidentiality', 'Confidentiality'),
+                  ('other', 'Other')]
+
+    vulnerability = RadioField('Type of Vulnerability', choices=vuln_types, default="injection", validators=[InputRequired()])
+    explanation = TextAreaField('Explanation of vulnerability', validators=[InputRequired()])
+    whyreport = TextAreaField('Why are you reporting this vulnerability?', validators=[InputRequired()])
     domainip = TextAreaField('Domain name or IP address relating to the report', validators=[InputRequired(), Length(min=1, max=50)])
     submit = SubmitField('Submit Form')
 

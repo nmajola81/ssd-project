@@ -8,6 +8,11 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from encrypt import encrypt_data_dict, decrypt_data
+
+from datetime import datetime
+
+from cryptography.fernet import Fernet
 
 app = Flask(__name__) # create an instance of the Flask class
 
@@ -32,9 +37,20 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     phone_number = db.Column(db.String)
-    role = db.Column(db.String, default=False)
+    role = db.Column(db.String, default="User")
     is_deleted = db.Column(db.Boolean, default=False)
+    enc_key = db.Column(db.String)
 
+    reports = db.relationship('Report', backref="user",lazy=True)
+    # messages = db.relationship('Message', secondary="reports", lazy=True)
+
+class Report(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    report_content = db.Column(db.LargeBinary)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    date_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+# class Message(db.Model, UserMixin):
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -47,9 +63,11 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 @app.route("/")
-def Index():
-    name = "Steve"
-    return render_template("index.html", data=name)
+def index():
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
+    else:
+        return render_template("index.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -66,6 +84,8 @@ def register():
             flash('This email is unavailable. Please use a different email.')
             return redirect('/register')
 
+        user_enc_key = Fernet.generate_key()
+
         add_user = User(
             first_name=form.first_name.data,
             surname_prefix=form.surname_prefix.data,
@@ -74,7 +94,8 @@ def register():
             password=generate_password_hash(form.password.data, 'sha256'),
             phone_number=form.phone_number.data,
             role="User",
-            is_deleted=0
+            is_deleted=0,
+            enc_key=user_enc_key.decode('utf-8')
         )
 
         db.session.add(add_user)
@@ -113,11 +134,36 @@ def logout():
     logout_user()
     return redirect('/login')
 
-@app.route("/report", methods=["GET", "POST"])
+@app.route("/submitreport", methods=["GET", "POST"])
 @login_required
-def report():
+def submitreport():
     form = ReportForm()
     if form.validate_on_submit():
+
+
+
+        data = {
+            "vulnerability": form.vulnerability.data,
+            "explanation": form.explanation.data,
+            "whyreport": form.whyreport.data,
+            "domainip": form.domainip.data
+        }
+
+        encrypted_data = encrypt_data_dict(data, current_user.enc_key)
+
+
+        add_report = Report(
+            report_content = encrypted_data,
+            user_id = current_user.id
+            #the date_time is set automatically by means of the default param in the class
+        )
+
+        db.session.add(add_report)
+        db.session.commit()
+
+        # flash(f"Account for {form.email.data} successfully created", "success")
+        # return redirect(url_for('login'))
+
         flash("Report Submission Successful")
         return redirect(url_for('dashboard'))
     else:
@@ -126,7 +172,24 @@ def report():
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+
+    reports_encr = db.session.query(Report)\
+        .where(current_user.id == Report.user_id)\
+        .order_by(Report.date_time.desc()).all()
+
+    reports = []
+    for rep in reports_encr:
+        content = decrypt_data(rep.report_content, current_user.enc_key)
+        content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
+        other_fields = {
+            "id":rep.id,
+            "user_id":rep.user_id,
+            "date_time":rep.date_time.strftime('%Y-%m-%d %H:%M')
+        }
+        other_fields.update(content)
+        reports.append(other_fields)
+
+    return render_template("dashboard.html", reports=reports)
 
 
 

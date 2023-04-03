@@ -5,8 +5,36 @@
 <!--Body block contains the main ontent of the page-->
 
 {% block body %}
-<h1>This is the dashboard page using inheritence</h1>
 
+<div class="container">
+    <h1>Your Reports:</h1>
 
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Submitted</th>
+          <th>Type</th>
+          <th>Explanation</th>
+          <th>Reason for Report</th>
+          <th>Domain(s)</th>
+        </tr>
+      </thead>
+
+     <tbody>
+
+        {% for report in reports %}
+
+        <tr>
+          <td>{{ report.date_time }}</td>
+          <td>{{ report.vulnerability }}</td>
+          <td>{{ report.explanation }}</td>
+          <td>{{ report.whyreport }}</td>
+          <td>{{ report.domainip }}</td>
+        </tr>
+
+        {% endfor %}
+    </table>
+
+</div>
 
 {% endblock %}
