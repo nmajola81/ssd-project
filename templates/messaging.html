@@ -7,28 +7,98 @@
 {% block body %}
 
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-4 overflow-auto">
-          <h2>Report Details</h2>
-            <div class="card">
-                <div class="card-body">
-                    <p class="card-text"><strong>{{ report.date_time }}</strong> </p>
-                    <p class="card-text"><strong>Reported by:</strong> {{ report.user_email }} </p>
-                    <p class="card-text"><strong>Vulnerability:</strong> {{ report.vulnerability }}</p>
-                    <p class="card-text"><strong>Details:</strong> {{ report.explanation }} </p>
-                    <p class="card-text"><strong>Reason for report:</strong> {{ report.whyreport }} </p>
-                    <p class="card-text"><strong>Domain(s) or IPs:</strong> {{ report.domainip }} </p>
+        <div class="row">
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>Report Details</strong>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text"><strong>{{ report.date_time }}</strong></p>
+                        <p class="card-text"><strong>Reported by:</strong> {{ report.user_email }} </p>
+                        <p class="card-text"><strong>Vulnerability:</strong> {{ report.vulnerability }}</p>
+                        <p class="card-text"><strong>Details:</strong> {{ report.explanation }} </p>
+                        <p class="card-text"><strong>Reason for report:</strong> {{ report.whyreport }} </p>
+                        <p class="card-text"><strong>Domain(s) or IPs:</strong> {{ report.domainip }} </p>
+                    </div>
                 </div>
             </div>
 
+            <div class="col">
+                <div class="card overflow-auto">
+                    <div class="card-header">
+                        <strong>Secure Messages</strong>
+                    </div>
+                    <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
+
+                        {# Starts #}
+
+                        <div class="card mt-3">
+                            <div class="card-header bg-transparent">
+                                <a href="#"
+                                   class="badge rounded-pill bg-primary text-decoration-none">example@example.com</a>
+                                <span class="badge rounded-pill bg-light text-dark">on 08 Mar 2023 at 14h35:</span>
+                            </div>
+                            <div class="card-body">
+                                Message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body
+                            </div>
+                        </div>
+
+                        {# Starts #}
+
+                        <div class="card mt-3">
+                            <div class="card-header bg-transparent">
+                                <a href="#"
+                                   class="badge rounded-pill bg-success text-decoration-none">example@example.com</a>
+                                <span class="badge rounded-pill bg-light text-dark">on 08 Mar 2023 at 14h35:</span>
+                            </div>
+                            <div class="card-body">
+                                Message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body
+                            </div>
+                        </div>
+
+                        {# Starts #}
+
+                        {# Starts #}
+
+                        <div class="card mt-3">
+                            <div class="card-header bg-transparent">
+                                <a href="#"
+                                   class="badge rounded-pill bg-primary text-decoration-none">example@example.com</a>
+                                <span class="badge rounded-pill bg-light text-dark">on 08 Mar 2023 at 14h35:</span>
+                            </div>
+                            <div class="card-body">
+                                Message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body
+                            </div>
+                        </div>
+
+                        {# Starts #}
+
+                        {# Starts #}
+
+                        <div class="card mt-3">
+                            <div class="card-header bg-transparent">
+                                <a href="#"
+                                   class="badge rounded-pill bg-primary text-decoration-none">example@example.com</a>
+                                <span class="badge rounded-pill bg-light text-dark">on 08 Mar 2023 at 14h35:</span>
+                            </div>
+                            <div class="card-body">
+                                Message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body message body
+                            </div>
+                        </div>
+
+                        {# Starts #}
+
+                    </div>
+
+
+
+
+
+                </div>
+
+            </div>
         </div>
-
-        <div class="col-md-8 overflow-auto">
-          <h2>Secure Messages</h2>
-
-
-        </div>
-      </div>
     </div>
 
 

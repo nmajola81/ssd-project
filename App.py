@@ -2,7 +2,7 @@ import werkzeug.security
 from flask import Flask, make_response, request, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 
-from form import LoginForm, RegistrationForm, ReportForm
+from form import LoginForm, RegistrationForm, ReportForm, MessageForm
 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
@@ -219,6 +219,18 @@ def messaging(report_id):
         "date_time":report_encr.date_time.strftime('%Y-%m-%d %H:%M')
     }
     report.update(content)
+
+
+    form = MessageForm()
+    if form.validate_on_submit():
+
+        encrypted_data = encrypt_data_dict(form.data, current_user.enc_key)
+
+        add_msg = Message(
+            report_content = "a",
+            from_user_id = current_user.id,
+            report_id = report_id
+        )
 
     return render_template("messaging.html", report=report)
 

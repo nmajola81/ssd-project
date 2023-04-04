@@ -42,3 +42,6 @@ class ReportForm(FlaskForm):
     domainip = TextAreaField('Domain name or IP address relating to the report', validators=[InputRequired(), Length(min=1, max=50)])
     submit = SubmitField('Submit Form')
 
+class MessageForm(FlaskForm):
+    message = EmailField('Message', validators=[InputRequired(), Length(min=1, max=250)])
+    submit = SubmitField('Post')
