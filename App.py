@@ -50,7 +50,15 @@ class Report(db.Model, UserMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
 
-# class Message(db.Model, UserMixin):
+
+
+class Message(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    report_content = db.Column(db.LargeBinary)
+    from_user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    report_id = db.Column(db.Integer, primary_key=True)
+    date_time = db.Column(db.DateTime, default=datetime.utcnow)
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -191,6 +199,28 @@ def dashboard():
 
     return render_template("dashboard.html", reports=reports)
 
+@app.route("/messaging/<string:report_id>")
+@login_required
+def messaging(report_id):
+    report_encr = db.session.query(Report)\
+        .where(report_id == Report.id)\
+        .first()
+
+    if not report_encr:
+        flash("Report not found")
+        return redirect(url_for('dashboard'))
+
+    content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
+    content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
+    report = {
+        "id":report_encr.id,
+        "user_id":report_encr.user_id,
+        "user_email":report_encr.user.email,
+        "date_time":report_encr.date_time.strftime('%Y-%m-%d %H:%M')
+    }
+    report.update(content)
+
+    return render_template("messaging.html", report=report)
 
 
 @app.errorhandler(404) #This creates a customise 404 error page to prevent information leakage
