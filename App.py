@@ -1,5 +1,5 @@
 import werkzeug.security
-from flask import Flask, make_response, request, render_template, redirect, url_for, flash
+from flask import Flask, make_response, request, render_template, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 
 from form import LoginForm, RegistrationForm, ReportForm, MessageForm
@@ -42,7 +42,7 @@ class User(db.Model, UserMixin):
     enc_key = db.Column(db.String)
 
     reports = db.relationship('Report', backref="user",lazy=True)
-    # messages = db.relationship('Message', secondary="reports", lazy=True)
+    messages = db.relationship('Message', backref="from_user", lazy=True)
 
 class Report(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,14 +50,16 @@ class Report(db.Model, UserMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
 
-
+    # messages = db.relationship('Message', secondary="report", lazy=True)
 
 class Message(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    report_content = db.Column(db.LargeBinary)
+    message = db.Column(db.LargeBinary)
     from_user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    report_id = db.Column(db.Integer, primary_key=True)
+    report_id = db.Column(db.Integer, db.ForeignKey("report.id"), nullable=False)
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 
 
 @login_manager.user_loader
@@ -199,7 +201,7 @@ def dashboard():
 
     return render_template("dashboard.html", reports=reports)
 
-@app.route("/messaging/<string:report_id>")
+@app.route("/messaging/<string:report_id>", methods=["GET", "POST"])
 @login_required
 def messaging(report_id):
     report_encr = db.session.query(Report)\
@@ -207,8 +209,11 @@ def messaging(report_id):
         .first()
 
     if not report_encr:
-        flash("Report not found")
-        return redirect(url_for('dashboard'))
+        return abort(404)
+
+    #If the user isn't an admin and they aren't the one who submitted the report, deny
+    if current_user.role != "Admin" and report_encr.user_id != current_user.id:
+        return abort(403)
 
     content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
     content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
@@ -224,24 +229,58 @@ def messaging(report_id):
     form = MessageForm()
     if form.validate_on_submit():
 
-        encrypted_data = encrypt_data_dict(form.data, current_user.enc_key)
+        encrypted_data = encrypt_data_dict(form.message.data, report_encr.user.enc_key)
 
         add_msg = Message(
-            report_content = "a",
+            message = encrypted_data,
             from_user_id = current_user.id,
             report_id = report_id
         )
 
-    return render_template("messaging.html", report=report)
+        db.session.add(add_msg)
+        db.session.commit()
+
+        # flash(f"Account for {form.email.data} successfully created", "success")
+        # return redirect(url_for('login'))
+
+        flash("Message posted successfully",'success')
+
+    #Now retrieving, decrypting and preparing messages for display
+
+    msgs_encr = db.session.query(Message).where(report_id==Message.report_id)\
+        .order_by(Message.id)\
+        .all()
+
+    msgs = []
+    for msg_encr in msgs_encr:
+
+        email_class = "bg-warning"
+        if msg_encr.from_user.email == report_encr.user.email:
+            email_class = "bg-primary"
+
+        msg = {
+            'message': decrypt_data(msg_encr.message, report_encr.user.enc_key),
+            'from_user_email': msg_encr.from_user.email,
+            'date_time': msg_encr.date_time,
+            'email_class': email_class
+        }
+        msgs.append(msg)
+
+
+    return render_template("messaging.html", report=report, form=form, msgs=msgs)
 
 
 @app.errorhandler(404) #This creates a customise 404 error page to prevent information leakage
 def page_not_found(e):
-    return render_template("404.html"), 404
+    return render_template("error.html"), 404
+
+@app.errorhandler(403) #This creates a customise 500 error page to prevent information leakage
+def internal_server_error(e):
+    return render_template("error.html"), 403
 
 @app.errorhandler(500) #This creates a customise 500 error page to prevent information leakage
 def internal_server_error(e):
-    return render_template("500.html"), 500
+    return render_template("error.html"), 500
 
 
 

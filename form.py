@@ -43,5 +43,5 @@ class ReportForm(FlaskForm):
     submit = SubmitField('Submit Form')
 
 class MessageForm(FlaskForm):
-    message = EmailField('Message', validators=[InputRequired(), Length(min=1, max=250)])
+    message = TextAreaField('Message', validators=[InputRequired(), Length(min=1, max=250)])
     submit = SubmitField('Post')
