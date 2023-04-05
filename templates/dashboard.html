@@ -2,39 +2,95 @@
 
 {% block title %}Home{% endblock %} <!Page title on web browser tab>
 
-<!--Body block contains the main ontent of the page-->
+<!--Body block contains the main content of the page-->
 
 {% block body %}
 
-<div class="container">
-    <h1>Your Reports:</h1>
+    {% for report in reports %}
+        <div class="modal fade" id="confirm-delete-modal-{{ report.id }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal" data-target="#confirm-delete-modal-{{ report.id }}" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Permanently delete this report (irreversible)?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary close" data-target="#confirm-delete-modal-{{ report.id }}" data-dismiss="modal">Cancel</button>
+                        <form id="deleteReportForm" action="{{ url_for('deletereport', report_id=report.id) }}" method="POST">
+                            <input class="btn btn-danger" type="submit" value="Delete">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Submitted</th>
-          <th>Type</th>
-          <th>Explanation</th>
-          <th>Reason for Report</th>
-          <th>Domain(s)</th>
-        </tr>
-      </thead>
 
-     <tbody>
+    <div class="container">
 
-        {% for report in reports %}
+        <div class="card">
 
-        <tr>
-          <td>{{ report.date_time }}</td>
-          <td>{{ report.vulnerability }}</td>
-          <td>{{ report.explanation }}</td>
-          <td>{{ report.whyreport }}</td>
-          <td>{{ report.domainip }}</td>
-        </tr>
+            <div class="card-header">
+                {% if role == "Admin" %}
+                    All Reports
+                {% else %}
+                    Your Reports
+                {% endif %}
+            </div>
+            <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
 
-        {% endfor %}
-    </table>
+                <table class="table">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Submitted</th>
+                        {% if role == "Admin" %}<th>Reported by</th>{% endif %}
+                        <th>Type</th>
+                        <th>Explanation</th>
+                        <th>Reason for Report</th>
+                        <th>Domain(s)</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
 
-</div>
+                    <tbody>
+
+                    {% for report in reports %}
+
+                        <tr>
+                            <td class="align-middle">{{ report.date_time }}</td>
+                            {% if role == "Admin" %}<td class="align-middle">
+                                <a href="#" class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a></td>{% endif %}
+                            <td class="align-middle">{{ report.vulnerability }}</td>
+                            <td class="align-middle">{{ report.explanation }}</td>
+                            <td class="align-middle">{{ report.whyreport }}</td>
+                            <td class="align-middle">{{ report.domainip }}</td>
+                            <td class="align-middle"><a href="{{ url_for('messaging', report_id=report.id)}}" class="btn btn-secondary">View / Messaging</a>
+                                <button type="button" class="btn btn-danger delete-report-btn" data-toggle="modal" data-target="#confirm-delete-modal-{{ report.id }}">Delete</button> </td>
+                        </tr>
+
+                    {% endfor %}
+                </table>
+
+                <script>
+                    $('.delete-report-btn').on('click', function () {
+                        const reportmodal = $(this).data('target');
+                        $(reportmodal).modal('show');
+                    });
+                    $('.close').on('click', function () {
+                        const reportmodal = $(this).data('target');
+                        $(reportmodal).modal('hide');
+                    });
+
+                </script>
+
+            </div>
+        </div>
+
+    </div>
 
 {% endblock %}

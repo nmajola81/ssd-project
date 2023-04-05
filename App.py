@@ -83,7 +83,6 @@ def index():
 def register():
 
     if (current_user.is_authenticated):
-        print("Logged in")
         return redirect(url_for('dashboard'))
 
     form = RegistrationForm()
@@ -183,25 +182,33 @@ def submitreport():
 @login_required
 def dashboard():
 
-    reports_encr = db.session.query(Report)\
-        .where(current_user.id == Report.user_id)\
-        .order_by(Report.date_time.desc()).all()
+    if current_user.role == "Admin":
+
+        reports_encr = db.session.query(Report)\
+            .order_by(Report.date_time.desc()).all()
+
+    else:
+
+        reports_encr = db.session.query(Report)\
+            .where(current_user.id == Report.user_id)\
+            .order_by(Report.date_time.desc()).all()
 
     reports = []
     for rep in reports_encr:
-        content = decrypt_data(rep.report_content, current_user.enc_key)
+        content = decrypt_data(rep.report_content, rep.user.enc_key)
         content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
         other_fields = {
             "id":rep.id,
             "user_id":rep.user_id,
-            "date_time":rep.date_time.strftime('%Y-%m-%d %H:%M')
+            "date_time":rep.date_time.strftime('%Y-%m-%d %H:%M'),
+            "user_email":rep.user.email
         }
         other_fields.update(content)
         reports.append(other_fields)
 
-    return render_template("dashboard.html", reports=reports)
+    return render_template("dashboard.html", reports=reports, role=current_user.role)
 
-@app.route("/messaging/<string:report_id>", methods=["GET", "POST"])
+@app.route("/messaging/<int:report_id>", methods=["GET", "POST"])
 @login_required
 def messaging(report_id):
     report_encr = db.session.query(Report)\
@@ -269,6 +276,10 @@ def messaging(report_id):
 
     return render_template("messaging.html", report=report, form=form, msgs=msgs)
 
+@app.route("/deletereport/<int:report_id>", methods=["POST"])
+@login_required
+def deletereport(report_id):
+    return url_for("dashboard")
 
 @app.errorhandler(404) #This creates a customise 404 error page to prevent information leakage
 def page_not_found(e):
