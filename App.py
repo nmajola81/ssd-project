@@ -41,8 +41,8 @@ class User(db.Model, UserMixin):
     is_deleted = db.Column(db.Boolean, default=False)
     enc_key = db.Column(db.String)
 
-    reports = db.relationship('Report', backref="user",lazy=True)
-    messages = db.relationship('Message', backref="from_user", lazy=True)
+    userreports = db.relationship('Report', backref="user",lazy=True)
+    usermessages = db.relationship('Message', backref="from_user", lazy=True)
 
 class Report(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -50,7 +50,9 @@ class Report(db.Model, UserMixin):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # messages = db.relationship('Message', secondary="report", lazy=True)
+    reportmessages = db.relationship('Message', backref="report", lazy=True)
+
+
 
 class Message(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,6 +60,10 @@ class Message(db.Model, UserMixin):
     from_user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     report_id = db.Column(db.Integer, db.ForeignKey("report.id"), nullable=False)
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
+
+    messagereports = db.relationship("Report", backref="messages")
+
+    # messagereports = db.relationship('Report', backref="messages", lazy=True)
 
 
 
@@ -279,13 +285,36 @@ def messaging(report_id):
 @app.route("/deletereport/<int:report_id>", methods=["POST"])
 @login_required
 def deletereport(report_id):
-    return url_for("dashboard")
+
+    if current_user.role != "Admin":
+        return abort(403)
+
+    report_encr = Report.query.first_or_404(report_id)
+
+    # report_msgs = db.session.query(Message)\
+    #     .where(report_id == Message.report_id)\
+    #     .all()
+
+    Message.query.filter_by(report_id=report_id).delete()
+    Report.query.filter_by(id=report_id).delete()
+
+    # db.session.delete(report_msgs)
+    # db.session.delete(report_encr)
+    db.session.commit()
+
+
+    return redirect(url_for("dashboard"))
+
+
+@app.errorhandler(405) #This creates a customise 405 error page to prevent information leakage
+def page_not_found(e):
+    return render_template("error.html"), 405
 
 @app.errorhandler(404) #This creates a customise 404 error page to prevent information leakage
 def page_not_found(e):
     return render_template("error.html"), 404
 
-@app.errorhandler(403) #This creates a customise 500 error page to prevent information leakage
+@app.errorhandler(403) #This creates a customise 403 error page to prevent information leakage
 def internal_server_error(e):
     return render_template("error.html"), 403
 

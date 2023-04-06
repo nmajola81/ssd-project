@@ -6,33 +6,37 @@
 
 {% block body %}
 
-<div class="container"> <!Puts the body content in a container to improve layout>
-    <h1>This is the login page using inheritence</h1>
+    <div class="row">
+        <div class="col"></div>
+        <div class="col-4">
+            <div class="card">
+                <div class="card-body">
+                    <form action="" method="post" novalidate>
+                        {{ form.csrf_token }}
+                        <fieldset class="form-group">
+                            <div class="form-floating my-3">
+                                {{ form.email(size=32,class="form-control form-control-md",placeholder="") }}
+                                <label for="{{ form.email.id }}">{{ form.email.label }}</label>
+                            </div>
 
-    <form action="" method="post" novalidate>
-        {{form.csrf_token}}
+                            <div class="form-floating my-3">
+                                {{ form.password (size=12,class="form-control form-control-md",placeholder="") }}
+                                <label for="{{ form.password.id }}">{{ form.password.label }}</label>
+                            </div>
 
-        <p>
-            {{form.hidden_tag()}} <!-- A hidden field which enables CSRF protection-->
-            {{form.email.label}}<br>
-            {{form.email(size=32)}}
-            
-        </p>
+                            <div class="form-group my-3">
+                                {{ form.submit(class="btn btn-primary") }}
+                                <a class="btn btn-outline-primary" href="{{ url_for("register") }}" role="button">Register</a>
+                            </div>
 
-        <p>
-            {{form.password.label}}<br>
-            {{form.password (size=12)}}
-            
-
-        <p>
-            {{form.submit()}}
-        </p>       
-
-
-        </p>
-
-    </form>
+                        </fieldset>
 
 
-</div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        <div class="col"></div>
+    </div>
 {% endblock %}
