@@ -22,7 +22,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary close" data-target="#confirm-delete-modal-{{ report.id }}" data-dismiss="modal">Cancel</button>
-                        <form id="deleteReportForm" action="{{ url_for('deletereport', report_id=report.id) }}" method="POST">
+                        <form id="deleteReportForm{{ report.id }}" action="{{ url_for('deletereport', report_id=report.id) }}" method="POST">
                             <input class="btn btn-danger" type="submit" value="Delete">
                         </form>
                     </div>

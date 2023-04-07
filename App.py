@@ -270,6 +270,8 @@ def messaging(report_id):
 
         msg = {
             'message': decrypt_data(msg_encr.message, report_encr.user.enc_key),
+            'id': msg_encr.id,
+            # 'from_user_id': msg_encr.from_user_id,
             'from_user_email': msg_encr.from_user.email,
             'date_time': msg_encr.date_time,
             'email_class': email_class
@@ -286,17 +288,11 @@ def deletereport(report_id):
     if current_user.role != "Admin":
         return abort(403)
 
-    report_encr = Report.query.filter_by(id=report_id).first_or_404()
-
-    # report_msgs = db.session.query(Message)\
-    #     .where(report_id == Message.report_id)\
-    #     .all()
+    # report_encr = Report.query.filter_by(id=report_id).first_or_404()
 
     Message.query.filter_by(report_id=report_id).delete()
     Report.query.filter_by(id=report_id).delete()
 
-    # db.session.delete(report_msgs)
-    # db.session.delete(report_encr)
     db.session.commit()
 
 
@@ -383,7 +379,20 @@ def getaccount(email):
 
     return render_template("account.html", user=user, reports=user_reports, msgs=msgs, form_details=update_details_form, form_password=update_password_form)
 
+@app.route("/deletemessage/<int:msg_id>", methods=["POST"])
+@login_required
+def deletemessage(msg_id):
 
+    if current_user.role != "Admin":
+        return abort(403)
+
+    msg_encr = Message.query.filter_by(id=msg_id).first_or_404()
+
+    db.session.delete(msg_encr)
+    db.session.commit()
+
+
+    return redirect(url_for("dashboard"))
 
 @app.errorhandler(405) #This creates a customise 405 error page to prevent information leakage
 def page_not_found(e):
