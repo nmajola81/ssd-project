@@ -289,7 +289,7 @@ def deletereport(report_id):
     if current_user.role != "Admin":
         return abort(403)
 
-    report_encr = Report.query.first_or_404(report_id)
+    report_encr = Report.query.filter_by(id=report_id).first_or_404()
 
     # report_msgs = db.session.query(Message)\
     #     .where(report_id == Message.report_id)\
@@ -304,6 +304,60 @@ def deletereport(report_id):
 
 
     return redirect(url_for("dashboard"))
+
+@app.route("/account/<string:email>", methods=["GET","POST"])
+@login_required
+def getaccount(email):
+
+    #If the user is not an admin and is trying to access someone else's account, deny
+    if current_user.email != email and current_user.role != "Admin":
+        abort(403)
+
+    user = User.query.filter_by(email=current_user.email).first_or_404()
+
+    #reports
+
+    user_reports_encr = db.session.query(Report)\
+        .where(user.id == Report.user_id)\
+        .all()
+
+    user_reports = []
+
+    for report_encr in user_reports_encr:
+
+        content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
+        content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
+        report = {
+            "id":report_encr.id,
+            "user_id":report_encr.user_id,
+            "user_email":report_encr.user.email,
+            "date_time":report_encr.date_time.strftime('%Y-%m-%d %H:%M'),
+            "vulnerability": content['vulnerability']
+        }
+        user_reports.append(report)
+
+    #end reports
+
+    #msgs
+
+    msgs_encr = db.session.query(Message).where(user.id == Message.from_user_id) \
+        .order_by(Message.id) \
+        .all()
+
+    msgs = []
+    for msg_encr in msgs_encr:
+
+        msg = {
+            'message': decrypt_data(msg_encr.message, user.enc_key),
+            'from_user_email': msg_encr.from_user.email,
+            'date_time': msg_encr.date_time.strftime("%Y-%m-%d at %Hh%M")
+        }
+        msgs.append(msg)
+
+    #end msgs
+
+    return render_template("account.html", user=user, reports=user_reports, msgs=msgs)
+
 
 
 @app.errorhandler(405) #This creates a customise 405 error page to prevent information leakage

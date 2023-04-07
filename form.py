@@ -13,7 +13,7 @@ class LoginForm(FlaskForm):
 
 class RegistrationForm(FlaskForm):
     first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': 'Enter your first name'})
-    surname_prefix = SelectField('Surname prefix', choices=[('','[Select one]'),('Mr', 'Mr.'), ('Mrs', 'Mrs.'), ('Ms', 'Ms.'), ('Prof', 'Prof.'), ('Dr', 'Dr.')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"})
+    surname_prefix = SelectField('Surname prefix', choices=[('','[Select surname prefix]'),('Mr', 'Mr.'), ('Mrs', 'Mrs.'), ('Ms', 'Ms.'), ('Prof', 'Prof.'), ('Dr', 'Dr.')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"})
     surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': 'Enter your surname'})
     email = EmailField(validators=[InputRequired(), Email(), Length(max=40)], render_kw={'placeholder': 'Email'})
     password = PasswordField(validators=[InputRequired(), Length(min=6, max=20)], render_kw={'placeholder': 'Password'})

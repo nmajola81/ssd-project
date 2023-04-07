@@ -5,67 +5,74 @@
 <!--Body block contains the main content of the page-->
 
 {% block body %}
-<div class="container"> <!Put the body content in a container to improve layout>
-<h1>This is the registration page using inheritence</h1>
+    <div class="container mx-auto" style="max-width: 400px">
 
-<form action="" method="post" novalidate>
-    {{form.csrf_token}}
+        <div class="row">
 
-    <p>
-        {{form.hidden_tag()}} <!-- A hidden field which enables CSRF protection-->
-        {{form.first_name.label}}<br>
-        {{form.first_name (size=40)}}
-
-    </p>
-
-    <p>
-        {{ form.surname_prefix.label }}<br>
-        {{ form.surname_prefix(class="form-control") }}
-
-    </p>
-
-    <p>
-        {{form.surname.label}}<br>
-        {{form.surname (size=40)}}
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-transparent mx-3">
+                        <legend class="mb-0">New User Registration</legend>
+                    </div>
+                    <div class="card-body">
 
 
-    </p>
-
-    <p>
-        {{form.email.label}}<br>
-        {{form.email(size=40)}}
-
-    </p>
-
-    <p>
-        {{form.phone_number.label}}<br>
-        {{form.phone_number (size=40)}}
-
-    </p>
-
-    <p>
-        {{form.password.label}}<br>
-        {{form.password (size=25)}}
-
-    </p>
-
-    <p>
-        {{form.confirm.label}}<br>
-        {{form.confirm (size=25)}}
-
-    </p>
-        {{form.accept_tos()}} {{form.accept_tos.label}}
+                        <form action="" method="post" novalidate>
+                            {{ form.csrf_token }}
+                            <fieldset class="form-group">
+                                <div class="form-floating my-3">
+                                    {{ form.first_name (size=40,class="form-control form-control-md",placeholder="") }}
+                                    <label for="{{ form.first_name.id }}">{{ form.first_name.label }}</label>
+                                </div>
+                                <div class="form-group my-3">
+                                    {{ form.surname_prefix (class="form-select form-select-md") }}
+                                </div>
 
 
-
-    <p>
-        {{form.submit()}}
-    </p>       
-
-
+                                <div class="form-floating my-3">
+                                    {{ form.surname (size=40,class="form-control form-control-md",placeholder="") }}
+                                    <label for="{{ form.surname.id }}">{{ form.surname.label }}</label>
+                                </div>
 
 
-</form>
+                                <div class="form-floating my-3">
+                                    {{ form.email (size=40,class="form-control form-control-md",placeholder="") }}
+                                    <label for="{{ form.email.id }}">{{ form.email.label }}</label>
+                                </div>
 
-</div>
+
+                                <div class="form-floating my-3">
+                                    {{ form.phone_number (size=40,class="form-control form-control-md",placeholder="") }}
+                                    <label for="{{ form.phone_number.id }}">{{ form.phone_number.label }}</label>
+                                </div>
+
+
+                                <div class="form-floating my-3">
+                                    {{ form.password (size=25,class="form-control form-control-md",placeholder="") }}
+                                    <label for="{{ form.password.id }}">{{ form.password.label }}</label>
+                                </div>
+
+
+                                <div class="form-floating my-3">
+                                    {{ form.confirm (size=25,class="form-control form-control-md",placeholder="") }}
+                                    <label for="{{ form.confirm.id }}">{{ form.confirm.render_kw['placeholder'] }}</label>
+                                </div>
+
+                                <div class="form-group my-3">
+                                    {{ form.accept_tos(class="form-check-input") }} {{ form.accept_tos.label(class="form-check-label") }}
+                                </div>
+                                <div class="form-group my-3">
+
+                                    {{ form.submit(class="btn btn-primary") }}
+                                </div>
+
+                            </fieldset>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 {% endblock %}

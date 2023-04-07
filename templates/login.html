@@ -6,10 +6,17 @@
 
 {% block body %}
 
+    <div class="container mx-auto" style="max-width: 400px">
+
+
+
     <div class="row">
-        <div class="col"></div>
-        <div class="col-4">
+
+        <div class="col">
             <div class="card">
+                <div class="card-header bg-transparent mx-3">
+                    <legend class="mb-0">User Login</legend>
+                </div>
                 <div class="card-body">
                     <form action="" method="post" novalidate>
                         {{ form.csrf_token }}
@@ -37,6 +44,7 @@
                 </div>
             </div>
         </div>
-        <div class="col"></div>
+
+    </div>
     </div>
 {% endblock %}
