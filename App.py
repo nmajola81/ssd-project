@@ -2,7 +2,7 @@ import werkzeug.security
 from flask import Flask, make_response, request, render_template, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 
-from form import LoginForm, RegistrationForm, ReportForm, MessageForm
+from form import LoginForm, RegistrationForm, ReportForm, MessageForm, UpdateDetailsForm, UpdatePasswordForm
 
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 
@@ -96,7 +96,7 @@ def register():
         #access the data from fields in the form like this print(form.email)
 
         if User.query.filter_by(email=form.email.data).first():
-            flash('This email is unavailable. Please use a different email.')
+            flash('This email is unavailable. Please use a different email.', "warning")
             return redirect('/register')
 
         user_enc_key = Fernet.generate_key()
@@ -135,7 +135,7 @@ def login():
         user = User.query.filter_by(email=form.email.data).first()
 
         if not user or not check_password_hash(user.password,form.password.data):
-            flash ("Login failed: Invalid/Unknown login credentials.")
+            flash ("Login failed: Invalid/Unknown login credentials.", "danger")
             return redirect('/login')
 
 
@@ -179,7 +179,7 @@ def submitreport():
         # flash(f"Account for {form.email.data} successfully created", "success")
         # return redirect(url_for('login'))
 
-        flash("Report Submission Successful")
+        flash("Report Submission Successful", "success")
         return redirect(url_for('dashboard'))
     else:
         return render_template("report.html", title="report", form=form)
@@ -253,9 +253,6 @@ def messaging(report_id):
         db.session.add(add_msg)
         db.session.commit()
 
-        # flash(f"Account for {form.email.data} successfully created", "success")
-        # return redirect(url_for('login'))
-
         flash("Message posted successfully",'success')
 
     #Now retrieving, decrypting and preparing messages for display
@@ -313,7 +310,7 @@ def getaccount(email):
     if current_user.email != email and current_user.role != "Admin":
         abort(403)
 
-    user = User.query.filter_by(email=current_user.email).first_or_404()
+    user = User.query.filter_by(email=email).first_or_404()
 
     #reports
 
@@ -348,7 +345,7 @@ def getaccount(email):
     for msg_encr in msgs_encr:
 
         msg = {
-            'message': decrypt_data(msg_encr.message, user.enc_key),
+            'message': decrypt_data(msg_encr.message, msg_encr.report.user.enc_key),
             'from_user_email': msg_encr.from_user.email,
             'date_time': msg_encr.date_time.strftime("%Y-%m-%d at %Hh%M")
         }
@@ -356,7 +353,35 @@ def getaccount(email):
 
     #end msgs
 
-    return render_template("account.html", user=user, reports=user_reports, msgs=msgs)
+    update_details_form = UpdateDetailsForm()
+    update_password_form = UpdatePasswordForm()
+
+    if update_details_form.validate_on_submit() and 'update_details' in request.form:
+
+        user.first_name = update_details_form.first_name.data
+        user.surname_prefix = update_details_form.surname_prefix.data
+        user.surname = update_details_form.surname.data
+        user.phone_number = update_details_form.phone_number.data
+
+        db.session.commit()
+        flash("Account details have been successfully updated", "success")
+
+    elif request.method == 'GET':
+
+        update_details_form.first_name.data = user.first_name
+        update_details_form.surname_prefix.data = user.surname_prefix
+        update_details_form.surname.data = user.surname
+        update_details_form.phone_number.data = user.phone_number
+
+
+
+    if update_password_form.validate_on_submit() and 'update_password' in request.form:
+        user.password = generate_password_hash(update_password_form.password.data, 'sha256')
+        db.session.commit()
+        flash("Password has been successfully updated", "success")
+
+
+    return render_template("account.html", user=user, reports=user_reports, msgs=msgs, form_details=update_details_form, form_password=update_password_form)
 
 
 

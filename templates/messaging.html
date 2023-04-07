@@ -15,7 +15,7 @@
                     </div>
                     <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
                         <p class="card-text"><strong>Reported:</strong> {{ report.date_time }} </p>
-                        <p class="card-text"><strong>Reported by:</strong> <a href="#"
+                        <p class="card-text"><strong>Reported by:</strong> <a href="{{ url_for('getaccount', email=report.user_email) }}"
                                                                               class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a> </p>
                         <p class="card-text"><strong>Vulnerability:</strong> {{ report.vulnerability }}</p>
                         <p class="card-text"><strong>Details:</strong> {{ report.explanation }} </p>
@@ -37,16 +37,16 @@
                                 {#  starts #}
 
                                 {% for msg in msgs %}
-                                <div class="card mt-3">
-                                    <div class="card-header bg-transparent">
-                                        <a href="#"
-                                           class="badge rounded-pill {{ msg.email_class }} text-decoration-none">{{ msg.from_user_email  }}</a>
-                                        <span class="badge rounded-pill bg-light text-dark">{{ msg.date_time.strftime('%Y-%m-%d') }} at {{ msg.date_time.strftime('%Hh%M') }}:</span>
+                                    <div class="card mt-3">
+                                        <div class="card-header bg-transparent">
+                                            <a href="{{ url_for('getaccount', email=msg.from_user_email) }}"
+                                               class="badge rounded-pill {{ msg.email_class }} text-decoration-none">{{ msg.from_user_email }}</a>
+                                            <span class="badge rounded-pill bg-light text-dark">{{ msg.date_time.strftime('%Y-%m-%d') }} at {{ msg.date_time.strftime('%Hh%M') }}:</span>
+                                        </div>
+                                        <div class="card-body">
+                                            {{ msg.message }}
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                    {{ msg.message }}
-                                    </div>
-                                </div>
                                 {% endfor %}
 
                                 {# Starts #}
@@ -87,18 +87,29 @@
                         </div>
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <form action="" method="post" novalidate>
-                        {{ form.csrf_token }}
+                <form action="" method="post">
+                    {{ form.csrf_token }}
+                    <div class="row my-3">
 
 
+                        <div class="col d-flex align-items-center">
+                            <div class="input-group">
+                                <span class="input-group-text">Secure Message</span>
+                                {{ form.message(class="form-control flex-grow-1 me-3") }}
+                            </div>
+                            {{ form.submit(class="btn btn-primary btn-lg") }}
 
-                        <div class="row">
-                            <div class="col-8">{{ form.message}}</div>
-                            <div class="col">{{ form.submit}}</div>
                         </div>
-                    </form>
-                </div>
+
+
+                        {# Start #}
+
+
+                        {# End #}
+
+
+                    </div>
+                </form>
             </div>
         </div>
     </div>
