@@ -48,9 +48,9 @@ class ReportForm(FlaskForm):
                   ('other', 'Other')]
 
     vulnerability = RadioField('Type of Vulnerability', choices=vuln_types, default="injection", validators=[InputRequired()])
-    explanation = TextAreaField('Explanation of vulnerability', validators=[InputRequired()])
-    whyreport = TextAreaField('Why are you reporting this vulnerability?', validators=[InputRequired()])
-    domainip = TextAreaField('Domain name or IP address relating to the report', validators=[InputRequired(), Length(min=1, max=50)])
+    explanation = TextAreaField('Explanation of vulnerability', validators=[InputRequired(), Length(min=1, max=1000)])
+    whyreport = TextAreaField('Why are you reporting this vulnerability?', validators=[InputRequired(), Length(min=1, max=1000)])
+    domainip = TextAreaField('Domain name or IP address relating to the report', validators=[InputRequired(), Length(min=1, max=100)])
     submit = SubmitField('Submit Form')
 
 class MessageForm(FlaskForm):

@@ -6,46 +6,67 @@
 
 {% block body %}
 
-<div class="container"> <!Puts the body content in a container to improve layout>
-    <h2>Please complete the form below to submit your report</h2>
+    <div class="container mx-auto" style="max-width: 700px">
 
-    <form action="" method="post" novalidate>
-        {{form.csrf_token}}
+        <div class="row">
 
-        <p>
-            {{form.hidden_tag()}} <!-- A hidden field which enables CSRF protection-->
-            {{form.vulnerability.label}}<br>
-            {{form.vulnerability}}
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-transparent mx-3">
+                        <legend class="mb-0">Coordinated Vulnerability Disclosure Report</legend>
+                    </div>
+                    <div class="card-body">
+                        <form action="" method="post">
+                            {{ form.csrf_token }}
+                            {{ form.hidden_tag() }} <!-- A hidden field which enables CSRF protection-->
+                            <fieldset class="form-group">
 
-        </p>
-
-        <p>
-        {{form.explanation.label}}<br>
-        {{form.explanation(cols="100", rows="6")}}
-        </p> 
-
-
-        <p>
-        {{form.whyreport.label}}<br>
-        {{form.whyreport(cols="100", rows="6")}}
-        </p> 
-
-        <p>
-            {{form.domainip.label}}<br>
-            {{form.domainip(cols="100", rows="1")}}
-        </p> 
-            
-        </p>
-
-        
-            {{form.submit()}}
-        </p>       
+                                <div class="mb-6">
 
 
-        </p>
+                                    {{ form.vulnerability.label(class="form-label") }}:
+                                    {% for subfield in form.vulnerability %}
+                                        <div class="form-check">
+                                            {{ subfield(class_='form-check-input') }}
+                                            <label class="form-check-label"
+                                                   for="{{ subfield.id }}">{{ subfield.label }}</label>
+                                        </div>
+                                    {% endfor %}
 
-    </form>
+                                    {#
+                                    <br>
+                                    {{ form.vulnerability }}
+                                 #}
 
 
-</div>
+                                </div>
+
+                                <div class="my-3">
+                                    {{ form.explanation.label(class="form-label") }}<br>
+                                    {{ form.explanation(rows="6", class="form-control flex-grow-1 me-3") }}
+                                </div>
+
+
+                                <div class="my-3">
+                                    {{ form.whyreport.label(class="form-label") }}<br>
+                                    {{ form.whyreport(rows="6", class="form-control flex-grow-1 me-3") }}
+                                </div>
+
+                                <div class="my-3">
+                                    {{ form.domainip.label(class="form-label") }}<br>
+                                    {{ form.domainip(rows="1", class="form-control flex-grow-1 me-3") }}
+                                </div>
+
+
+                                {{ form.submit(class="btn btn-primary") }}
+
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
 {% endblock %}
