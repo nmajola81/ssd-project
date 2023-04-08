@@ -14,9 +14,9 @@ from datetime import datetime
 
 from cryptography.fernet import Fernet
 
-app = Flask(__name__) # create an instance of the Flask class
+app = Flask(__name__)  # create an instance of the Flask class
 
-app.config['SECRET_KEY'] = '5c7d9fe414fc668876f91637635567c4' # set the secret key
+app.config['SECRET_KEY'] = '5c7d9fe414fc668876f91637635567c4'  # set the secret key
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 db = SQLAlchemy(app)
@@ -27,7 +27,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-#Define the routes for the app to display specific pages
+
+# Define the routes for the app to display specific pages
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,8 +42,9 @@ class User(db.Model, UserMixin):
     is_deleted = db.Column(db.Boolean, default=False)
     enc_key = db.Column(db.String)
 
-    userreports = db.relationship('Report', backref="user",lazy=True)
+    userreports = db.relationship('Report', backref="user", lazy=True)
     usermessages = db.relationship('Message', backref="from_user", lazy=True)
+
 
 class Report(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,7 +53,6 @@ class Report(db.Model, UserMixin):
     date_time = db.Column(db.DateTime, default=datetime.utcnow)
 
     reportmessages = db.relationship('Message', backref="report", lazy=True)
-
 
 
 class Message(db.Model, UserMixin):
@@ -66,8 +67,6 @@ class Message(db.Model, UserMixin):
     # messagereports = db.relationship('Report', backref="messages", lazy=True)
 
 
-
-
 @login_manager.user_loader
 def load_user(user_id):
     """Loads user as current_user.
@@ -78,6 +77,7 @@ def load_user(user_id):
 
     return User.query.get(int(user_id))
 
+
 @app.route("/")
 def index():
     if current_user.is_authenticated:
@@ -85,15 +85,15 @@ def index():
     else:
         return render_template("index.html")
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     if (current_user.is_authenticated):
         return redirect(url_for('dashboard'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
-        #access the data from fields in the form like this print(form.email)
+        # access the data from fields in the form like this print(form.email)
 
         if User.query.filter_by(email=form.email.data).first():
             flash('This email is unavailable. Please use a different email.', "warning")
@@ -119,12 +119,11 @@ def register():
         flash(f"Account for {form.email.data} successfully created", "success")
         return redirect(url_for('login'))
 
-
     return render_template("register.html", form=form)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     if (current_user.is_authenticated):
         print("Logged in")
         return redirect(url_for('dashboard'))
@@ -134,28 +133,27 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
-        if not user or not check_password_hash(user.password,form.password.data):
-            flash ("Login failed: Invalid/Unknown login credentials.", "danger")
+        if not user or not check_password_hash(user.password, form.password.data):
+            flash("Login failed: Invalid/Unknown login credentials.", "danger")
             return redirect('/login')
-
 
         login_user(user)
         return redirect(url_for('dashboard'))
 
     return render_template("login.html", title="Login", form=form)
 
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect('/login')
+
 
 @app.route("/submitreport", methods=["GET", "POST"])
 @login_required
 def submitreport():
     form = ReportForm()
     if form.validate_on_submit():
-
-
 
         data = {
             "vulnerability": form.vulnerability.data,
@@ -166,11 +164,10 @@ def submitreport():
 
         encrypted_data = encrypt_data_dict(data, current_user.enc_key)
 
-
         add_report = Report(
-            report_content = encrypted_data,
-            user_id = current_user.id
-            #the date_time is set automatically by means of the default param in the class
+            report_content=encrypted_data,
+            user_id=current_user.id
+            # the date_time is set automatically by means of the default param in the class
         )
 
         db.session.add(add_report)
@@ -184,19 +181,19 @@ def submitreport():
     else:
         return render_template("report.html", title="report", form=form)
 
+
 @app.route("/dashboard")
 @login_required
 def dashboard():
-
     if current_user.role == "Admin":
 
-        reports_encr = db.session.query(Report)\
+        reports_encr = db.session.query(Report) \
             .order_by(Report.date_time.desc()).all()
 
     else:
 
-        reports_encr = db.session.query(Report)\
-            .where(current_user.id == Report.user_id)\
+        reports_encr = db.session.query(Report) \
+            .where(current_user.id == Report.user_id) \
             .order_by(Report.date_time.desc()).all()
 
     reports = []
@@ -204,61 +201,60 @@ def dashboard():
         content = decrypt_data(rep.report_content, rep.user.enc_key)
         content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
         other_fields = {
-            "id":rep.id,
-            "user_id":rep.user_id,
-            "date_time":rep.date_time.strftime('%Y-%m-%d %H:%M'),
-            "user_email":rep.user.email
+            "id": rep.id,
+            "user_id": rep.user_id,
+            "date_time": rep.date_time.strftime('%Y-%m-%d %H:%M'),
+            "user_email": rep.user.email
         }
         other_fields.update(content)
         reports.append(other_fields)
 
     return render_template("dashboard.html", reports=reports, role=current_user.role)
 
+
 @app.route("/messaging/<int:report_id>", methods=["GET", "POST"])
 @login_required
 def messaging(report_id):
-    report_encr = db.session.query(Report)\
-        .where(report_id == Report.id)\
+    report_encr = db.session.query(Report) \
+        .where(report_id == Report.id) \
         .first()
 
     if not report_encr:
         return abort(404)
 
-    #If the user isn't an admin and they aren't the one who submitted the report, deny
+    # If the user isn't an admin and they aren't the one who submitted the report, deny
     if current_user.role != "Admin" and report_encr.user_id != current_user.id:
         return abort(403)
 
     content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
     content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
     report = {
-        "id":report_encr.id,
-        "user_id":report_encr.user_id,
-        "user_email":report_encr.user.email,
-        "date_time":report_encr.date_time.strftime('%Y-%m-%d %H:%M')
+        "id": report_encr.id,
+        "user_id": report_encr.user_id,
+        "user_email": report_encr.user.email,
+        "date_time": report_encr.date_time.strftime('%Y-%m-%d %H:%M')
     }
     report.update(content)
 
-
     form = MessageForm()
     if form.validate_on_submit():
-
         encrypted_data = encrypt_data_dict(form.message.data, report_encr.user.enc_key)
 
         add_msg = Message(
-            message = encrypted_data,
-            from_user_id = current_user.id,
-            report_id = report_id
+            message=encrypted_data,
+            from_user_id=current_user.id,
+            report_id=report_id
         )
 
         db.session.add(add_msg)
         db.session.commit()
 
-        flash("Message posted successfully",'success')
+        flash("Message posted successfully", 'success')
 
-    #Now retrieving, decrypting and preparing messages for display
+    # Now retrieving, decrypting and preparing messages for display
 
-    msgs_encr = db.session.query(Message).where(report_id==Message.report_id)\
-        .order_by(Message.id)\
+    msgs_encr = db.session.query(Message).where(report_id == Message.report_id) \
+        .order_by(Message.id) \
         .all()
 
     msgs = []
@@ -278,60 +274,60 @@ def messaging(report_id):
         }
         msgs.append(msg)
 
-
     return render_template("messaging.html", report=report, form=form, msgs=msgs)
+
 
 @app.route("/deletereport/<int:report_id>", methods=["POST"])
 @login_required
 def deletereport(report_id):
-
     if current_user.role != "Admin":
         return abort(403)
 
-    # report_encr = Report.query.filter_by(id=report_id).first_or_404()
+    report = Report.query.filter_by(id=report_id).first_or_404()
 
     Message.query.filter_by(report_id=report_id).delete()
-    Report.query.filter_by(id=report_id).delete()
+
+    db.session.delete(report)
 
     db.session.commit()
 
+    flash("Report successfully deleted", "success")
 
     return redirect(url_for("dashboard"))
 
-@app.route("/account/<string:email>", methods=["GET","POST"])
+
+@app.route("/account/<string:email>", methods=["GET", "POST"])
 @login_required
 def getaccount(email):
-
-    #If the user is not an admin and is trying to access someone else's account, deny
+    # If the user is not an admin and is trying to access someone else's account, deny
     if current_user.email != email and current_user.role != "Admin":
         abort(403)
 
     user = User.query.filter_by(email=email).first_or_404()
 
-    #reports
+    # reports
 
-    user_reports_encr = db.session.query(Report)\
-        .where(user.id == Report.user_id)\
+    user_reports_encr = db.session.query(Report) \
+        .where(user.id == Report.user_id) \
         .all()
 
     user_reports = []
 
     for report_encr in user_reports_encr:
-
         content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
         content['vulnerability'] = " ".join(map(str.capitalize, content['vulnerability'].split("_")))
         report = {
-            "id":report_encr.id,
-            "user_id":report_encr.user_id,
-            "user_email":report_encr.user.email,
-            "date_time":report_encr.date_time.strftime('%Y-%m-%d %H:%M'),
+            "id": report_encr.id,
+            "user_id": report_encr.user_id,
+            "user_email": report_encr.user.email,
+            "date_time": report_encr.date_time.strftime('%Y-%m-%d %H:%M'),
             "vulnerability": content['vulnerability']
         }
         user_reports.append(report)
 
-    #end reports
+    # end reports
 
-    #msgs
+    # msgs
 
     msgs_encr = db.session.query(Message).where(user.id == Message.from_user_id) \
         .order_by(Message.id) \
@@ -339,7 +335,6 @@ def getaccount(email):
 
     msgs = []
     for msg_encr in msgs_encr:
-
         msg = {
             'message': decrypt_data(msg_encr.message, msg_encr.report.user.enc_key),
             'from_user_email': msg_encr.from_user.email,
@@ -347,7 +342,7 @@ def getaccount(email):
         }
         msgs.append(msg)
 
-    #end msgs
+    # end msgs
 
     update_details_form = UpdateDetailsForm()
     update_password_form = UpdatePasswordForm()
@@ -369,53 +364,54 @@ def getaccount(email):
         update_details_form.surname.data = user.surname
         update_details_form.phone_number.data = user.phone_number
 
-
-
     if update_password_form.validate_on_submit() and 'update_password' in request.form:
         user.password = generate_password_hash(update_password_form.password.data, 'sha256')
         db.session.commit()
         flash("Password has been successfully updated", "success")
 
+    return render_template("account.html", user=user, reports=user_reports, msgs=msgs, form_details=update_details_form,
+                           form_password=update_password_form)
 
-    return render_template("account.html", user=user, reports=user_reports, msgs=msgs, form_details=update_details_form, form_password=update_password_form)
 
 @app.route("/deletemessage/<int:msg_id>", methods=["POST"])
 @login_required
 def deletemessage(msg_id):
+    msg_encr = Message.query.filter_by(id=msg_id).first_or_404()
 
-    if current_user.role != "Admin":
+    if current_user.role != "Admin" and current_user.id != msg_encr.from_user.id:
         return abort(403)
 
-    msg_encr = Message.query.filter_by(id=msg_id).first_or_404()
+    msg_report_id = msg_encr.report.id
 
     db.session.delete(msg_encr)
     db.session.commit()
 
+    flash("Message has been deleted", "success")
 
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("messaging", report_id=msg_report_id))
 
-@app.errorhandler(405) #This creates a customise 405 error page to prevent information leakage
+
+@app.errorhandler(405)  # This creates a customise 405 error page to prevent information leakage
 def page_not_found(e):
     return render_template("error.html"), 405
 
-@app.errorhandler(404) #This creates a customise 404 error page to prevent information leakage
+
+@app.errorhandler(404)  # This creates a customise 404 error page to prevent information leakage
 def page_not_found(e):
     return render_template("error.html"), 404
 
-@app.errorhandler(403) #This creates a customise 403 error page to prevent information leakage
+
+@app.errorhandler(403)  # This creates a customise 403 error page to prevent information leakage
 def internal_server_error(e):
     return render_template("error.html"), 403
 
-@app.errorhandler(500) #This creates a customise 500 error page to prevent information leakage
+
+@app.errorhandler(500)  # This creates a customise 500 error page to prevent information leakage
 def internal_server_error(e):
     return render_template("error.html"), 500
 
 
-
-#End of route definitions
-
-
-
+# End of route definitions
 
 
 if __name__ == "__main__":
