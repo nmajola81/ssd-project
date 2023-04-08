@@ -2,7 +2,39 @@
 
 {% block title %}Secure Messaging - Report {% endblock %} <!Page title on web browser tab>
 
-<!--Body block contains the main ontent of the page-->
+<!--Body block contains the main content of the page-->
+{% if anchor %}
+    {% block head %}
+        {{ super() }}
+        <style>
+            .highlight {
+                background-color: cornsilk;
+            }
+        </style>
+
+
+        <script>
+
+            window.onload = () => {
+                // Get the div element
+                const divElement = document.querySelector('{{ anchor }}');
+
+                // Scroll smoothly to the element
+                divElement.scrollIntoView({behavior: 'smooth'});
+
+                // Add the highlight class to the element
+                divElement.classList.add('highlight');
+
+                // Remove the highlight class after 2 seconds
+                setTimeout(() => {
+                    divElement.classList.remove('highlight');
+                }, 4000);
+
+            };
+        </script>
+
+    {% endblock %}
+{% endif %}
 
 {% block body %}
 
@@ -62,16 +94,19 @@
                             <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
 
                                 {% for msg in msgs %}
-                                    <div class="card mt-3">
+                                    <div class="card mt-3" id="msg_{{ msg['id'] }}">
                                         <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                                             <div>
-                                            <a href="{{ url_for('getaccount', email=msg.from_user_email) }}"
-                                               class="badge rounded-pill {{ msg.email_class }} text-decoration-none">{{ msg.from_user_email }}</a>
-                                            <span class="badge rounded-pill bg-light text-dark">{{ msg.date_time.strftime('%Y-%m-%d') }} at {{ msg.date_time.strftime('%Hh%M') }}:</span>
+                                                <a href="{{ url_for('getaccount', email=msg.from_user_email) }}"
+                                                   class="badge rounded-pill {{ msg.email_class }} text-decoration-none">{{ msg.from_user_email }}</a>
+                                                <span class="badge rounded-pill bg-light text-dark">{{ msg.date_time.strftime('%Y-%m-%d') }} at {{ msg.date_time.strftime('%Hh%M') }}:</span>
                                             </div>
                                             <div>
-                                                {% if current_user.role == "Admin" or msg.email_class == "bg-primary"%}
-                                                <button type="button" class="btn btn-danger delete-msg-btn" data-toggle="modal" data-target="#confirm-delete-modal-{{ msg.id }}">Delete</button>
+                                                {% if current_user.role == "Admin" or msg.email_class == "bg-primary" %}
+                                                    <button type="button" class="btn btn-danger delete-msg-btn"
+                                                            data-toggle="modal"
+                                                            data-target="#confirm-delete-modal-{{ msg.id }}">Delete
+                                                    </button>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -120,7 +155,7 @@
                     </div>
                 </div>
                 <form action="" method="post">
-                    {{ form.csrf_token }}
+                    {{ form.hidden_tag() }}
                     <div class="row my-3">
 
 

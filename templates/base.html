@@ -1,6 +1,6 @@
-<! This is the base template from which all other pages inherit from>
+<!-- This is the base template from which all other pages inherit from -->
 <!DOCTYPE html>
-<html lang="en"
+<html lang="en">
 <head>
 
     {% block head %}
@@ -20,7 +20,14 @@
                 integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
                 crossorigin="anonymous"></script>
 
+        <style>
+            html, body {
+                scroll-behavior: smooth;
+            }
+        </style>
+
     {% endblock %}
+
 </head>
 
 <body>

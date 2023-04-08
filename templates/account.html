@@ -15,7 +15,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-header bg-transparent mx-3">
-                        <legend class="mb-0">Account Details:</legend>
+                        <h4 class="mb-0">Account Details:</h4>
                     </div>
                     <div class="card-body">
 
@@ -25,8 +25,9 @@
                             {{ form_details.csrf_token }}
 
                             <div class="form-group m-3">
-                                <label class="form=control-label">Email:</label>
-                                <input type="text" class="form-control form-control-md" value="{{ user.email }}"
+                                <label for="email" class="form=control-label">Email:</label>
+                                <input id="email" name="email" type="text" class="form-control form-control-md"
+                                       value="{{ user.email }}"
                                        disabled>
 
                             </div>
@@ -108,7 +109,7 @@
             <div class="col">
                 <div class="card">
                     <div class="card-header bg-transparent mx-3">
-                        <legend class="mb-0">Password Update:</legend>
+                        <h4 class="mb-0">Password Update:</h4>
                     </div>
                     <div class="card-body">
                         <form action="" method="post">
@@ -157,25 +158,73 @@
 
         </div>
 
-        <div class="row">
+        <div class="row mb-5">
 
             <div class="col-4">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-header bg-transparent mx-3">
+                        <h4 class="mb-0">Reports:</h4>
+                    </div>
+                    <div class="card-body" style="max-height: 400px;overflow-y: auto;">
+
+                        <div class="list-group">
+
+                            {% for rep in reports %}
+
+                                {% if loop.index is even %}
+                                    {% set style = ' list-group-item-secondary' %}
+                                {% else %}
+                                    {% set style = '' %}
+                                {% endif %}
+
+                                <a href="{{ url_for('messaging', report_id=rep.id) }}"
+                                   class="list-group-item list-group-item-action{{ style }}">
+                                    <span class="badge rounded-pill bg-light text-dark">{{ rep.date_time }}:</span>
+                                    <p class="mt-1">{{ rep.vulnerability }}</p>
+                                </a>
+
+                            {% endfor %}
+
+                        </div>
 
                     </div>
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-8">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-header bg-transparent mx-3">
+                        <h4 class="mb-0">Messages:</h4>
+                    </div>
+                    <div class="card-body" style="max-height: 400px;overflow-y: auto;">
+
+                        <div class="list-group">
+
+                            {% for msg in msgs %}
+
+                                {% if loop.index is even %}
+                                    {% set style = ' list-group-item-secondary' %}
+                                {% else %}
+                                    {% set style = '' %}
+                                {% endif %}
+{#{{ url_for('messaging', report_id=msg['from_report_id']) + "#msg-%s" % msg['id'] }}#}
+{#                                {{ url_for('messaging', report_id=msg['from_report_id'], _anchor="msg_%s" % msg['id']) }}#}
+                                <a href="{{ url_for('messaging', report_id=msg['from_report_id'], msg_id=msg['id']) }}" class="list-group-item list-group-item-action{{ style }}">
+                                    <span class="badge rounded-pill bg-light text-dark">{{ msg['date_time'] }}:</span>
+                                    <p class="mt-1">{{ msg['message'] }}</p>
+                                </a>
+
+                            {% endfor %}
+
+                        </div>
 
                     </div>
+
                 </div>
             </div>
-
         </div>
+
+    </div>
 
     </div>
 {% endblock %}

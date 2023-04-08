@@ -13,11 +13,10 @@
             <div class="col">
                 <div class="card">
                     <div class="card-header bg-transparent mx-3">
-                        <legend class="mb-0">Coordinated Vulnerability Disclosure Report</legend>
+                        <h4 class="mb-0">Coordinated Vulnerability Disclosure Report</h4>
                     </div>
                     <div class="card-body">
                         <form action="" method="post">
-                            {{ form.csrf_token }}
                             {{ form.hidden_tag() }} <!-- A hidden field which enables CSRF protection-->
                             <fieldset class="form-group">
 
@@ -43,18 +42,64 @@
 
                                 <div class="my-3">
                                     {{ form.explanation.label(class="form-label") }}<br>
-                                    {{ form.explanation(rows="6", class="form-control flex-grow-1 me-3") }}
+
+                                    {% if form.explanation.errors %}
+
+                                        <div class="invalid-feedback">
+                                            {% for error in form.explanation.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+
+                                    {% else %}
+
+                                        {{ form.explanation(rows="6", class="form-control flex-grow-1 me-3") }}
+
+                                    {% endif %}
+
                                 </div>
 
 
                                 <div class="my-3">
+
                                     {{ form.whyreport.label(class="form-label") }}<br>
-                                    {{ form.whyreport(rows="6", class="form-control flex-grow-1 me-3") }}
+
+                                    {% if form.whyreport.errors %}
+
+                                        <div class="invalid-feedback">
+                                            {% for error in form.whyreport.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+
+                                    {% else %}
+
+                                        {{ form.whyreport(rows="6", class="form-control flex-grow-1 me-3") }}
+
+                                    {% endif %}
+
+
+
                                 </div>
 
                                 <div class="my-3">
-                                    {{ form.domainip.label(class="form-label") }}<br>
-                                    {{ form.domainip(rows="1", class="form-control flex-grow-1 me-3") }}
+                                     {{ form.domainip.label(class="form-label") }}<br>
+
+                                    {% if form.domainip.errors %}
+
+                                        <div class="invalid-feedback">
+                                            {% for error in form.domainip.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+
+                                    {% else %}
+
+                                        {{ form.domainip(rows="1", class="form-control flex-grow-1 me-3") }}
+
+                                    {% endif %}
+
+
                                 </div>
 
 
