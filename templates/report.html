@@ -1,19 +1,19 @@
 {% extends 'base.html' %} <!Inherit from the base.html template>
 
-{% block title %}Report CVD{% endblock %} <!Page title on browser tab>
+{% block title %}{{ title }}{% endblock %} <!Page title on browser tab>
 
 <!--Body block contains the main content of the page-->
 
 {% block body %}
 
-    <div class="container mx-auto" style="max-width: 700px">
+    <div class="container mx-auto" style="max-width: 900px">
 
         <div class="row">
 
             <div class="col">
                 <div class="card">
                     <div class="card-header bg-transparent mx-3">
-                        <h4 class="mb-0">Coordinated Vulnerability Disclosure Report</h4>
+                        <h4 class="mb-0">{{ mode }} Coordinated Vulnerability Disclosure Report</h4>
                     </div>
                     <div class="card-body">
                         <form action="" method="post">
@@ -44,7 +44,7 @@
                                     {{ form.explanation.label(class="form-label") }}<br>
 
                                     {% if form.explanation.errors %}
-
+                                        {{ form.explanation(rows="6", class="form-control flex-grow-1 me-3 is-invalid") }}
                                         <div class="invalid-feedback">
                                             {% for error in form.explanation.errors %}
                                                 <span>{{ error }}</span>
@@ -65,7 +65,7 @@
                                     {{ form.whyreport.label(class="form-label") }}<br>
 
                                     {% if form.whyreport.errors %}
-
+                                        {{ form.whyreport(rows="6", class="form-control flex-grow-1 me-3 is-invalid") }}
                                         <div class="invalid-feedback">
                                             {% for error in form.whyreport.errors %}
                                                 <span>{{ error }}</span>
@@ -86,7 +86,7 @@
                                      {{ form.domainip.label(class="form-label") }}<br>
 
                                     {% if form.domainip.errors %}
-
+                                        {{ form.domainip(rows="1", class="form-control flex-grow-1 me-3 is-invalid") }}
                                         <div class="invalid-feedback">
                                             {% for error in form.domainip.errors %}
                                                 <span>{{ error }}</span>

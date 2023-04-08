@@ -153,7 +153,11 @@ def logout():
 @login_required
 def submitreport():
     form = ReportForm()
-    if form.validate_on_submit():
+
+    if form.is_submitted() and not form.validate():
+        flash("Please fix the errors below and try again.", "danger")
+
+    elif form.validate_on_submit():
 
         data = {
             "vulnerability": form.vulnerability.data,
@@ -179,7 +183,7 @@ def submitreport():
         flash("Report Submission Successful", "success")
         return redirect(url_for('dashboard'))
     else:
-        return render_template("report.html", title="report", form=form)
+        return render_template("report.html", title="Create CVD Report", form=form, mode="Create")
 
 
 @app.route("/dashboard")
@@ -414,6 +418,56 @@ def deletemessage(msg_id):
     flash("Message has been deleted", "success")
 
     return redirect(url_for("messaging", report_id=msg_report_id))
+
+
+@app.route("/editreport/<int:report_id>", methods=["GET", "POST"])
+@login_required
+def editreport(report_id):
+
+    report_encr = db.session.query(Report) \
+        .where(report_id == Report.id) \
+        .first()
+
+    if not report_encr:
+        return abort(404)
+
+    # If the user isn't an admin and they aren't the one who submitted the report, deny
+    if current_user.role != "Admin" and report_encr.user_id != current_user.id:
+        return abort(403)
+
+    form = ReportForm()
+
+    if form.is_submitted() and not form.validate():
+        flash("Please fix the errors below and try again.","danger")
+
+    elif form.validate_on_submit():
+
+        data = {
+            "vulnerability": form.vulnerability.data,
+            "explanation": form.explanation.data,
+            "whyreport": form.whyreport.data,
+            "domainip": form.domainip.data
+        }
+
+        encrypted_data = encrypt_data_dict(data, report_encr.user.enc_key)
+
+        report_encr.report_content = encrypted_data
+        db.session.commit()
+        flash("The report has been successfully updated.", "success")
+
+        return redirect(url_for('dashboard'))
+
+    if not form.is_submitted():
+
+        content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
+        form.vulnerability.data = content['vulnerability']
+        form.explanation.data = content['explanation']
+        form.whyreport.data = content['whyreport']
+        form.domainip.data = content['domainip']
+
+    form.submit.label.text = "Update"
+
+    return render_template("report.html", title="Edit CVD Report", form=form, mode="Edit")
 
 
 @app.errorhandler(405)  # This creates a customise 405 error page to prevent information leakage
