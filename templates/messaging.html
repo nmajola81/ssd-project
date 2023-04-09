@@ -40,28 +40,32 @@
 
 
     {% for msg in msgs %}
-        {% if current_user.role == "Admin" or msg.email_class == "bg-primary"%}
-        <div class="modal fade" id="confirm-delete-modal-{{ msg.id }}" tabindex="-1" role="dialog">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirm Delete</h5>
-                        <button type="button" class="close" data-dismiss="modal" data-target="#confirm-delete-modal-{{ msg.id }}" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Warning: Permanently delete this message (irreversible)?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary close" data-target="#confirm-delete-modal-{{ msg.id }}" data-dismiss="modal">Cancel</button>
-                        <form id="deleteMessageForm{{ msg.id }}" action="{{ url_for('deletemessage', msg_id=msg.id) }}" method="POST">
-                            <input class="btn btn-danger" type="submit" value="Delete">
-                        </form>
+        {% if current_user.role == "Admin" or msg.email_class == "bg-primary" %}
+            <div class="modal fade" id="confirm-delete-modal-{{ msg.id }}" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Delete</h5>
+                            <button type="button" class="close" data-dismiss="modal"
+                                    data-target="#confirm-delete-modal-{{ msg.id }}" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Warning: Permanently delete this message (irreversible)?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary close"
+                                    data-target="#confirm-delete-modal-{{ msg.id }}" data-dismiss="modal">Cancel
+                            </button>
+                            <form id="deleteMessageForm{{ msg.id }}"
+                                  action="{{ url_for('deletemessage', msg_id=msg.id) }}" method="POST">
+                                <input class="btn btn-danger" type="submit" value="Delete">
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
         {% endif %}
     {% endfor %}
 
@@ -71,16 +75,18 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <div>
-                        <strong>Report Details</strong>
-                            </div>
+                            <strong>Report Details</strong>
+                        </div>
                         <div>
-                            <a href="{{ url_for('editreport', report_id=report.id)}}" class="btn btn-primary">Edit</a>
+                            <a href="{{ url_for('editreport', report_id=report.id) }}" class="btn btn-primary">Edit</a>
                         </div>
                     </div>
                     <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
                         <p class="card-text"><strong>Reported:</strong> {{ report.date_time }} </p>
-                        <p class="card-text"><strong>Reported by:</strong> <a href="{{ url_for('getaccount', email=report.user_email) }}"
-                                                                              class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a> </p>
+                        <p class="card-text"><strong>Reported by:</strong> <a
+                                href="{{ url_for('getaccount', email=report.user_email) }}"
+                                class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a>
+                        </p>
                         <p class="card-text"><strong>Vulnerability:</strong> {{ report.vulnerability }}</p>
                         <p class="card-text"><strong>Details:</strong> {{ report.explanation }} </p>
                         <p class="card-text"><strong>Reason for report:</strong> {{ report.whyreport }} </p>
@@ -121,37 +127,6 @@
                                     </div>
                                 {% endfor %}
 
-                                {# Starts #}
-
-                                {# Starts #}
-                                {#
-                                <div class="card mt-3">
-                                    <div class="card-header bg-transparent">
-                                        <a href="#"
-                                           class="badge rounded-pill bg-primary text-decoration-none">example@example.com</a>
-                                        <span class="badge rounded-pill bg-light text-dark">on 08 Mar 2023 at 14h35:</span>
-                                    </div>
-                                    <div class="card-body">
-                                        Message body message body message body message body message body message body
-                                        message body message body message body message body message body message body
-                                        message body message body message body message body
-                                    </div>
-                                </div>
-
-                                <div class="card mt-3">
-                                    <div class="card-header bg-transparent">
-                                        <a href="#"
-                                           class="badge rounded-pill bg-primary text-decoration-none">example@example.com</a>
-                                        <span class="badge rounded-pill bg-light text-dark">on 08 Mar 2023 at 14h35:</span>
-                                    </div>
-                                    <div class="card-body">
-                                        Message body message body message body message body message body message body
-                                        message body message body message body message body message body message body
-                                        message body message body message body message body
-                                    </div>
-                                </div>
-                                #}
-                                {# Starts #}
 
                             </div>
 
@@ -164,20 +139,53 @@
                     <div class="row my-3">
 
 
+                        {#                        <div class="col d-flex align-items-center">#}
+                        {#                            <div class="input-group">#}
+                        {#                                <span class="input-group-text">Secure Message</span>#}
+                        {#                                {{ form.message(class="form-control flex-grow-1 me-3") }}#}
+                        {#                            </div>#}
+                        {#                            {{ form.submit(class="btn btn-primary btn-lg") }}#}
+                        {##}
+                        {#                        </div>#}
+
+{#                        <div class="col d-flex align-items-center">#}
+{#                            <div class="input-group">#}
+{#                                <span class="input-group-text">Secure Message</span>#}
+{#                                {{ form.message(class="form-control flex-grow-1 me-3") }}#}
+{#                            </div>#}
+{#                            {{ form.submit(class="btn btn-primary btn-lg") }}#}
+{##}
+{#                        </div>#}
+
+                        {# Starts #}
                         <div class="col d-flex align-items-center">
                             <div class="input-group">
-                                <span class="input-group-text">Secure Message</span>
-                                {{ form.message(class="form-control flex-grow-1 me-3") }}
-                            </div>
-                            {{ form.submit(class="btn btn-primary btn-lg") }}
+                                <div class="form-floating mx-3">
 
+                                {% set message_invalid = "" %}
+
+                                {% if form.message.errors %}
+
+                                    {% set message_invalid = " is-invalid" %}
+
+                                {% endif %}
+
+                                {{ form.message (size=30,class="form-control form-control-md flex-grow-1 me-3" + message_invalid,placeholder="") }}
+                                <label for="{{ form.message.id }}">[Type secure message here]</label>
+
+                                {% if form.message.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.message.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                </div>
+                            </div>
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
                         </div>
 
-
-                        {# Start #}
-
-
-                        {# End #}
+                        {# Ends #}
 
 
                     </div>

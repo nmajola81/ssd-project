@@ -9,42 +9,75 @@
     <div class="container mx-auto" style="max-width: 400px">
 
 
+        <div class="row">
 
-    <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-transparent mx-3">
+                        <h4 class="mb-0">User Login</h4>
+                    </div>
+                    <div class="card-body">
+                        <form action="" method="post">
+                            {{ form.hidden_tag() }}
+                            <fieldset class="form-group">
+                                <div class="form-floating my-3">
 
-        <div class="col">
-            <div class="card">
-                <div class="card-header bg-transparent mx-3">
-                    <h4 class="mb-0">User Login</h4>
-                </div>
-                <div class="card-body">
-                    <form action="" method="post">
-                        {{ form.hidden_tag() }}
-                        <fieldset class="form-group">
-                            <div class="form-floating my-3">
-                                {{ form.email(size=32,class="form-control form-control-md",placeholder="") }}
-                                <label for="{{ form.email.id }}">{{ form.email.label }}</label>
-                            </div>
+                                    {% set email_invalid = "" %}
 
-                            <div class="form-floating my-3">
-                                {{ form.password (size=12,class="form-control form-control-md",placeholder="") }}
-                                <label for="{{ form.password.id }}">{{ form.password.label }}</label>
-                            </div>
+                                    {% if form.email.errors %}
 
-                            <div class="form-group my-3">
-                                {{ form.submit(class="btn btn-primary") }}
-                                <a class="btn btn-outline-primary" href="{{ url_for("register") }}" role="button">Register</a>
-                            </div>
+                                        {% set email_invalid = " is-invalid" %}
 
-                        </fieldset>
+                                    {% endif %}
+
+                                    {{ form.email (size=40,class="form-control form-control-md" + email_invalid,placeholder="") }}
+                                    <label for="{{ form.email.id }}">{{ form.email.label }}</label>
+
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.email.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-floating my-3">
+
+                                    {% set password_invalid = "" %}
+
+                                    {% if form.password.errors %}
+
+                                        {% set password_invalid = " is-invalid" %}
+
+                                    {% endif %}
+
+                                    {{ form.password (size=25,class="form-control form-control-md" + password_invalid,placeholder="") }}
+                                    <label for="{{ form.password.id }}">{{ form.password.label }}</label>
+
+                                    {% if form.password.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.password.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group my-3">
+                                    {{ form.submit(class="btn btn-primary") }}
+                                    <a class="btn btn-outline-primary" href="{{ url_for("register") }}" role="button">Register</a>
+                                </div>
+
+                            </fieldset>
 
 
-                    </form>
+                        </form>
 
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
+        </div>
     </div>
 {% endblock %}

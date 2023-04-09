@@ -1,5 +1,5 @@
-import werkzeug.security
-from flask import Flask, make_response, request, render_template, redirect, url_for, flash, abort
+
+from flask import Flask, request, render_template, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 
 from form import LoginForm, RegistrationForm, ReportForm, MessageForm, UpdateDetailsForm, UpdatePasswordForm
@@ -134,7 +134,10 @@ def login():
         # return redirect('/dashboard')
 
     form = LoginForm()
-    if form.validate_on_submit():
+    if form.is_submitted() and not form.validate():
+        flash("Please fix the errors below and try again.", "danger")
+
+    elif form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
         if not user or not check_password_hash(user.password, form.password.data):
@@ -252,7 +255,10 @@ def messaging(report_id, msg_id=None):
     report.update(content)
 
     form = MessageForm()
-    if form.validate_on_submit():
+    if form.is_submitted() and not form.validate():
+        flash("Invalid message: unable to post message.", "danger")
+
+    elif form.validate_on_submit():
         encrypted_data = encrypt_data_dict(form.message.data, report_encr.user.enc_key)
 
         add_msg = Message(
@@ -266,6 +272,8 @@ def messaging(report_id, msg_id=None):
         db.session.commit()
 
         flash("Message posted successfully", 'success')
+        #Doing this to get a fresh copy of the page; if user refreshes it won't keep posted the same message
+        return redirect(url_for("messaging",report_id=report_id,msg_id=msg_id))
 
     # Now retrieving, decrypting and preparing messages for display
 

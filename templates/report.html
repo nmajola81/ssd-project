@@ -32,11 +32,13 @@
                                         </div>
                                     {% endfor %}
 
-                                    {#
-                                    <br>
-                                    {{ form.vulnerability }}
-                                 #}
-
+                                    {% if form.vulnerability.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.vulnerability.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
 
                                 </div>
 
@@ -79,11 +81,10 @@
                                     {% endif %}
 
 
-
                                 </div>
 
                                 <div class="my-3">
-                                     {{ form.domainip.label(class="form-label") }}<br>
+                                    {{ form.domainip.label(class="form-label") }}<br>
 
                                     {% if form.domainip.errors %}
                                         {{ form.domainip(rows="1", class="form-control flex-grow-1 me-3 is-invalid") }}

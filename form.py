@@ -5,8 +5,8 @@ from wtforms.validators import Length, Email, EqualTo, ValidationError, InputReq
 
 
 class LoginForm(FlaskForm):
-    email = EmailField('Email', validators=[InputRequired(), Email()])
-    password = PasswordField('Password', validators=[InputRequired()])
+    email = EmailField('Email', validators=[InputRequired(), Email(), Length(max=40)])
+    password = PasswordField('Password', validators=[InputRequired(), Length(min=6, max=25)])
 
     submit = SubmitField('Login')
 
@@ -15,8 +15,8 @@ class RegistrationForm(FlaskForm):
     surname_prefix = SelectField('Surname prefix', choices=[('','[None]'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
     surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': 'Enter your surname'})
     email = EmailField(validators=[InputRequired(), Email(), Length(max=40)], render_kw={'placeholder': 'Email'})
-    password = PasswordField(validators=[InputRequired(), Length(min=6, max=20)], render_kw={'placeholder': 'Password'})
-    confirm = PasswordField(validators=[InputRequired(),EqualTo('password', message='Passwords must match')], render_kw={'placeholder': 'Confirm Password'})
+    password = PasswordField(validators=[InputRequired(), Length(min=6, max=25)], render_kw={'placeholder': 'Password'})
+    confirm = PasswordField(validators=[InputRequired(),EqualTo('password', message='Passwords must match'), Length(min=6, max=25)], render_kw={'placeholder': 'Confirm Password'})
     phone_number = StringField('Phone number', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': 'Enter your mobile/phone number'})
     accept_tos = BooleanField('I accept the terms and conditions', validators=[InputRequired()])
     submit = SubmitField('Register')
