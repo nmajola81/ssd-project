@@ -17,7 +17,7 @@ class RegistrationForm(FlaskForm):
     email = EmailField(validators=[InputRequired(), Email(), Length(max=40)], render_kw={'placeholder': 'Email'})
     password = PasswordField(validators=[InputRequired(), Length(min=6, max=20)], render_kw={'placeholder': 'Password'})
     confirm = PasswordField(validators=[InputRequired(),EqualTo('password', message='Passwords must match')], render_kw={'placeholder': 'Confirm Password'})
-    phone_number = StringField('Phone number', render_kw={'placeholder': 'Enter your mobile/phone number'})
+    phone_number = StringField('Phone number', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': 'Enter your mobile/phone number'})
     accept_tos = BooleanField('I accept the terms and conditions', validators=[InputRequired()])
     submit = SubmitField('Register')
 

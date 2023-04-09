@@ -68,10 +68,10 @@
                             {% if role == "Admin" %}<td class="align-middle">
                                 <a href="{{ url_for('getaccount', email=report.user_email) }}" class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a></td>{% endif %}
                             <td class="align-middle">{{ report.vulnerability }}</td>
-                            {# <td class="align-middle">{{ report.explanation }}</td>
-                            <td class="align-middle">{{ report.whyreport }}</td>
-                            <td class="align-middle">{{ report.domainip }}</td> #}
-                            <td class="align-middle"><a href="{{ url_for('messaging', report_id=report.id)}}" class="btn btn-secondary">View / Messaging</a>
+
+                            <td class="align-middle">
+                                <a href="{{ url_for('messaging', report_id=report.id)}}" class="btn btn-secondary">View / Messaging</a>
+                                <a href="{{ url_for('editreport', report_id=report.id)}}" class="btn btn-secondary">Edit</a>
                                 {% if role == "Admin" %}<button type="button" class="btn btn-danger delete-report-btn" data-toggle="modal" data-target="#confirm-delete-modal-{{ report.id }}">Delete</button>{% endif %} </td>
                         </tr>
 

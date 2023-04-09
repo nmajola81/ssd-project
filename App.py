@@ -92,7 +92,11 @@ def register():
         return redirect(url_for('dashboard'))
 
     form = RegistrationForm()
-    if form.validate_on_submit():
+
+    if form.is_submitted() and not form.validate():
+        flash("Please fix the errors below and try again.", "danger")
+
+    elif form.validate_on_submit():
         # access the data from fields in the form like this print(form.email)
 
         if User.query.filter_by(email=form.email.data).first():

@@ -69,8 +69,13 @@
         <div class="row">
             <div class="col-4">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
                         <strong>Report Details</strong>
+                            </div>
+                        <div>
+                            <a href="{{ url_for('editreport', report_id=report.id)}}" class="btn btn-primary">Edit</a>
+                        </div>
                     </div>
                     <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
                         <p class="card-text"><strong>Reported:</strong> {{ report.date_time }} </p>
