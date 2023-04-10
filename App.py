@@ -232,6 +232,20 @@ def dashboard():
 
     return render_template("dashboard.html", reports=reports, role=current_user.role)
 
+@app.route("/listusers")
+@login_required
+def allusers():
+    if current_user.role != "Admin":
+        abort(403)
+
+
+    users = db.session.query(User) \
+        .order_by(User.id.asc()).all()
+
+
+    return render_template("listusers.html", reports=reports, role=current_user.role)
+
+
 
 
 @app.route("/messaging/<int:report_id>/<int:msg_id>", methods=["GET", "POST"])
@@ -499,7 +513,8 @@ def editreport(report_id):
 @login_required
 def deleteaccount(email):
 
-    if current_user.role != "Admin" and current_user.email != email:
+    #If the user is not an admin and not the owner of the account OR if the user is the main admin user, block
+    if (current_user.role != "Admin" and current_user.email != email) or (current_user.id == 1):
         return abort(403)
 
     user = User.query.filter_by(email=email).first_or_404()

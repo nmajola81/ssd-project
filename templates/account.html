@@ -6,7 +6,8 @@
 
 {% block body %}
 
-    {% if not user.is_deleted %}
+    {# user.id = 1 is the main admin which shouldn't be deletable #}
+    {% if not user.is_deleted and user.id != 1 %}
         <div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -45,14 +46,20 @@
                             <h4 class="mb-0">Account Details:</h4>
                         </div>
                         <div>
-                            {% if user.is_deleted %}
-                                <span class="badge bg-danger">Deleted Account</span>
-                            {% else %}
+
+                        {% if user.id != 1 %}
+                            {% if not user.is_deleted %}
                                 <button type="button" class="btn btn-danger delete-acc-btn" data-toggle="modal"
                                         data-target="#confirm-delete-modal">
                                     Permanently Delete Account
                                 </button>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">Deleted Account</span>
+
                             {% endif %}
+                        {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
