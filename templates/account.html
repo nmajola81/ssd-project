@@ -1,0 +1,315 @@
+{% extends 'base.html' %} <!Inherit from the base.html template>
+
+{% block title %}Account{% endblock %} <!--Page title on browser tab-->
+
+<!--Body block contains the main content of the page-->
+
+{% block body %}
+
+    {% if not user.is_deleted %}
+        <div class="modal fade" id="confirm-delete-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete Account</h5>
+                        <button type="button" class="close" data-dismiss="modal"
+                                data-target="#confirm-delete-modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Warning: Permanently delete your account?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary close"
+                                data-target="#confirm-delete-modal" data-dismiss="modal">Cancel
+                        </button>
+                        <form id="deleteAccountForm"
+                              action="{{ url_for('deleteaccount', email=user.email) }}" method="POST">
+                            <input class="btn btn-danger" type="submit" value="Delete">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="container mx-auto" style="max-width: 900px">
+
+        <div class="row mb-3">
+
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-transparent mx-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="mb-0">Account Details:</h4>
+                        </div>
+                        <div>
+                            {% if user.is_deleted %}
+                                <span class="badge bg-danger">Deleted Account</span>
+                            {% else %}
+                                <button type="button" class="btn btn-danger delete-acc-btn" data-toggle="modal"
+                                        data-target="#confirm-delete-modal">
+                                    Permanently Delete Account
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        {% if user.is_deleted %}
+
+                            <div class="form-group m-3">
+                                <label for="email" class="form=control-label">Email:</label>
+                                <input id="email" name="email" type="text"
+                                       class="form-control form-control-md delete-acc-btn"
+                                       value="{{ user.email }}"
+                                       disabled>
+
+                            </div>
+
+                        {% else %}
+                            <!--starts here -->
+
+                            <form action="" method="post">
+                                {{ form_details.csrf_token }}
+
+                                <div class="form-group m-3">
+                                    <label for="email" class="form=control-label">Email:</label>
+                                    <input id="email" name="email" type="text"
+                                           class="form-control form-control-md delete-acc-btn"
+                                           value="{{ user.email }}"
+                                           disabled>
+
+                                </div>
+
+                                <div class="form-group m-3">
+                                    {{ form_details.first_name.label(class="form=control-label") }}:
+
+                                    {% if form_details.first_name.errors %}
+                                        {{ form_details.first_name(size=40,class="form-control form-control-md is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form_details.first_name.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form_details.first_name(size=40,class="form-control form-control-md") }}
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="form-group m-3">
+                                    {{ form_details.surname_prefix.label(class="form=control-label") }}:
+
+                                    {% if form_details.surname_prefix.errors %}
+                                        {{ form_details.surname_prefix(class="form-control form-control-md is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form_details.surname_prefix.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form_details.surname_prefix(class="form-control form-control-md") }}
+                                    {% endif %}
+                                </div>
+
+
+                                <div class="form-group m-3">
+                                    {{ form_details.surname.label(class="form=control-label") }}:
+
+                                    {% if form_details.surname.errors %}
+                                        {{ form_details.surname(size=40,class="form-control form-control-md is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form_details.surname.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form_details.surname(size=40,class="form-control form-control-md") }}
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group m-3">
+                                    {{ form_details.phone_number.label(class="form=control-label") }}:
+
+                                    {% if form_details.phone_number.errors %}
+                                        {{ form_details.phone_number(size=40,class="form-control form-control-md is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form_details.phone_number.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form_details.phone_number(size=40,class="form-control form-control-md") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group my-3 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {{ form_details.update_details(class="btn btn-primary") }}
+                                    </div>
+                                    <div>
+                                        <button type="button" id="clear-personal" class="btn btn-outline-primary">Clear
+                                            Personal Fields
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+
+
+        </div>
+        {% if not user.is_deleted %}
+            <div class="row mb-3">
+
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header bg-transparent mx-3">
+                            <h4 class="mb-0">Password Update:</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="" method="post">
+                                {{ form_password.csrf_token }}
+                                <div class="form-group m-3">
+                                    {{ form_password.password.label(class="form=control-label") }}:
+
+                                    {% if form_password.password.errors %}
+                                        {{ form_password.password(size=25,class="form-control form-control-md is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form_password.password.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form_password.password(size=25,class="form-control form-control-md") }}
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group m-3">
+                                    {{ form_password.confirm.label(class="form=control-label") }}:
+
+                                    {% if form_password.confirm.errors %}
+                                        {{ form_password.confirm(size=25,class="form-control form-control-md is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form_password.confirm.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ form_password.confirm(size=25,class="form-control form-control-md") }}
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group my-3">
+                                    {{ form_password.update_password(class="btn btn-primary") }}
+                                </div>
+                                <!--ends here -->
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        {% endif %}
+
+        <div class="row mb-5">
+
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header bg-transparent mx-3">
+                        <h4 class="mb-0">Reports:</h4>
+                    </div>
+                    <div class="card-body" style="max-height: 400px;overflow-y: auto;">
+
+                        <div class="list-group">
+
+                            {% for rep in reports %}
+
+                                {% if loop.index is even %}
+                                    {% set style = ' list-group-item-secondary' %}
+                                {% else %}
+                                    {% set style = '' %}
+                                {% endif %}
+
+                                <a href="{{ url_for('messaging', report_id=rep.id) }}"
+                                   class="list-group-item list-group-item-action{{ style }}">
+                                    <span class="badge rounded-pill bg-light text-dark">{{ rep.date_time }}:</span>
+                                    <p class="mt-1">{{ rep.vulnerability }}</p>
+                                </a>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-header bg-transparent mx-3">
+                        <h4 class="mb-0">Messages:</h4>
+                    </div>
+                    <div class="card-body" style="max-height: 400px;overflow-y: auto;">
+
+                        <div class="list-group">
+
+                            {% for msg in msgs %}
+
+                                {% if loop.index is even %}
+                                    {% set style = ' list-group-item-secondary' %}
+                                {% else %}
+                                    {% set style = '' %}
+                                {% endif %}
+                                {#{{ url_for('messaging', report_id=msg['from_report_id']) + "#msg-%s" % msg['id'] }}#}
+                                {#                                {{ url_for('messaging', report_id=msg['from_report_id'], _anchor="msg_%s" % msg['id']) }}#}
+                                <a href="{{ url_for('messaging', report_id=msg['from_report_id'], msg_id=msg['id']) }}"
+                                   class="list-group-item list-group-item-action{{ style }}">
+                                    <span class="badge rounded-pill bg-light text-dark">{{ msg['date_time'] }}:</span>
+                                    <p class="mt-1">{{ msg['message'] }}</p>
+                                </a>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    </div>
+
+    <script>
+        $('.delete-acc-btn').on('click', function () {
+            const modal = $(this).data('target');
+            $(modal).modal('show');
+        });
+        $('.close').on('click', function () {
+            const modal = $(this).data('target');
+            $(modal).modal('hide');
+        });
+
+        $(document).ready(function () {
+            $('#clear-personal').click(function () {
+                $('#first_name').val('');
+                $('#surname').val('');
+                $('#phone_number').val('');
+                $('#surname_prefix').prop('selectedIndex', 0);
+
+            });
+        });
+
+    </script>
+
+{% endblock %}

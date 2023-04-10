@@ -6,6 +6,7 @@
 
 {% block body %}
 
+    {% if role == "Admin" %}
     {% for report in reports %}
         <div class="modal fade" id="confirm-delete-modal-{{ report.id }}" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -17,11 +18,11 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Permanently delete this report (irreversible)?</p>
+                        <p>Warning: Permanently delete this report (irreversible)? All associated messages will also be deleted!</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary close" data-target="#confirm-delete-modal-{{ report.id }}" data-dismiss="modal">Cancel</button>
-                        <form id="deleteReportForm" action="{{ url_for('deletereport', report_id=report.id) }}" method="POST">
+                        <form id="deleteReportForm{{ report.id }}" action="{{ url_for('deletereport', report_id=report.id) }}" method="POST">
                             <input class="btn btn-danger" type="submit" value="Delete">
                         </form>
                     </div>
@@ -29,6 +30,7 @@
             </div>
         </div>
     {% endfor %}
+    {% endif %}
 
 
     <div class="container">
@@ -50,9 +52,9 @@
                         <th>Submitted</th>
                         {% if role == "Admin" %}<th>Reported by</th>{% endif %}
                         <th>Type</th>
-                        <th>Explanation</th>
+                        {# <th>Explanation</th>
                         <th>Reason for Report</th>
-                        <th>Domain(s)</th>
+                        <th>Domain(s)</th> #}
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -64,13 +66,13 @@
                         <tr>
                             <td class="align-middle">{{ report.date_time }}</td>
                             {% if role == "Admin" %}<td class="align-middle">
-                                <a href="#" class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a></td>{% endif %}
+                                <a href="{{ url_for('getaccount', email=report.user_email) }}" class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a></td>{% endif %}
                             <td class="align-middle">{{ report.vulnerability }}</td>
-                            <td class="align-middle">{{ report.explanation }}</td>
-                            <td class="align-middle">{{ report.whyreport }}</td>
-                            <td class="align-middle">{{ report.domainip }}</td>
-                            <td class="align-middle"><a href="{{ url_for('messaging', report_id=report.id)}}" class="btn btn-secondary">View / Messaging</a>
-                                <button type="button" class="btn btn-danger delete-report-btn" data-toggle="modal" data-target="#confirm-delete-modal-{{ report.id }}">Delete</button> </td>
+
+                            <td class="align-middle">
+                                <a href="{{ url_for('messaging', report_id=report.id)}}" class="btn btn-secondary">View / Messaging</a>
+                                <a href="{{ url_for('editreport', report_id=report.id)}}" class="btn btn-secondary">Edit</a>
+                                {% if role == "Admin" %}<button type="button" class="btn btn-danger delete-report-btn" data-toggle="modal" data-target="#confirm-delete-modal-{{ report.id }}">Delete</button>{% endif %} </td>
                         </tr>
 
                     {% endfor %}

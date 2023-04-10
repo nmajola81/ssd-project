@@ -1,6 +1,6 @@
-<! This is the base template from which all other pages inherit from>
+<!-- This is the base template from which all other pages inherit from -->
 <!DOCTYPE html>
-<html lang="en"
+<html lang="en">
 <head>
 
     {% block head %}
@@ -20,7 +20,14 @@
                 integrity="sha384-qKXV1j0HvMUeCBQ+QVp7JcfGl760yU08IQ+GpUo5hlbpg51QRiuqHAJz8+BrxE/N"
                 crossorigin="anonymous"></script>
 
+        <style>
+            html, body {
+                scroll-behavior: smooth;
+            }
+        </style>
+
     {% endblock %}
+
 </head>
 
 <body>
@@ -56,6 +63,9 @@
                         <a class="nav-link" href="{{ url_for('submitreport') }}">Submit Report</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('getaccount', email=current_user.email) }}">Account</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                     </li>
 
@@ -69,16 +79,23 @@
 <!--End of navbar code-->
 
 
-<hr>
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
+  <div class="container mx-auto text-center mt-3" style="max-width: 900px">
+    <div class="row">
+      <div class="col">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
             {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
+          {% endif %}
+        {% endwith%}
+        {% block content %}{% endblock %}
+      </div>
+    </div>
+  </div>
 
 {% block body %} {% endblock %}
 
