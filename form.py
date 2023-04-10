@@ -30,6 +30,7 @@ class RegistrationForm(FlaskForm):
     #         raise ValidationError('Email already in use')
 
 class UpdateDetailsForm(FlaskForm):
+    role = SelectField('Role', choices=[('User','User'),('Admin', 'Admin')], render_kw={'placeholder': '[Role]',"style": "width: auto"}, default='User')
     first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': '[None]'})
     surname_prefix = SelectField('Surname prefix', choices=[('','[None]'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
     surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': '[None]'})

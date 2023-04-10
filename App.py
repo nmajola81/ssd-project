@@ -1,4 +1,3 @@
-
 from flask import Flask, request, render_template, redirect, url_for, flash, abort
 from flask_sqlalchemy import SQLAlchemy
 
@@ -150,7 +149,7 @@ def login():
     elif form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
-        if not user or not check_password_hash(user.password, form.password.data) or user.is_deleted==True:
+        if not user or not check_password_hash(user.password, form.password.data) or user.is_deleted == True:
             flash("Login failed: Invalid/Unknown login credentials.", "danger")
             return redirect(url_for('login'))
 
@@ -232,20 +231,17 @@ def dashboard():
 
     return render_template("dashboard.html", reports=reports, role=current_user.role)
 
+
 @app.route("/listusers")
 @login_required
 def allusers():
     if current_user.role != "Admin":
         abort(403)
 
-
     users = db.session.query(User) \
         .order_by(User.id.asc()).all()
 
-
     return render_template("listusers.html", reports=reports, role=current_user.role)
-
-
 
 
 @app.route("/messaging/<int:report_id>/<int:msg_id>", methods=["GET", "POST"])
@@ -263,7 +259,7 @@ def messaging(report_id, msg_id=None):
     if current_user.role != "Admin" and report_encr.user_id != current_user.id:
         return abort(403)
 
-    #Get the anchor if one is present, which will point to a specific message
+    # Get the anchor if one is present, which will point to a specific message
     anchor = None
     if msg_id:
         anchor = "#msg_%s" % msg_id
@@ -296,8 +292,8 @@ def messaging(report_id, msg_id=None):
         db.session.commit()
 
         flash("Message posted successfully", 'success')
-        #Doing this to get a fresh copy of the page; if user refreshes it won't keep posted the same message
-        return redirect(url_for("messaging",report_id=report_id,msg_id=msg_id))
+        # Doing this to get a fresh copy of the page; if user refreshes it won't keep posted the same message
+        return redirect(url_for("messaging", report_id=report_id, msg_id=msg_id))
 
     # Now retrieving, decrypting and preparing messages for display
 
@@ -347,6 +343,7 @@ def deletereport(report_id):
 @app.route("/account/<string:email>", methods=["GET", "POST"])
 @login_required
 def getaccount(email):
+
     # If the user is not an admin and is trying to access someone else's account, deny
     if current_user.email != email and current_user.role != "Admin":
         abort(403)
@@ -398,18 +395,26 @@ def getaccount(email):
     update_password_form = UpdatePasswordForm()
 
     if 'update_details' in request.form and update_details_form.is_submitted() and not update_details_form.validate():
-        flash("Please fix the errors below and try again.","danger")
+        flash("Please fix the errors below and try again.", "danger")
 
     elif 'update_details' in request.form and update_details_form.validate_on_submit():
+
+        #Only the main admin can edit the main admin's details
+        if user.id == 1 and current_user.id != 1:
+            abort(403)
 
         user.first_name = update_details_form.first_name.data
         user.surname_prefix = update_details_form.surname_prefix.data
         user.surname = update_details_form.surname.data
         user.phone_number = update_details_form.phone_number.data
 
+        # Only update the role of users other than the main admin and only if an admin is logged in
+        if user.id != 1 and current_user.role == "Admin":
+            user.role = update_details_form.role.data
+
         db.session.commit()
         flash("Account details have been successfully updated", "success")
-        return redirect(url_for("getaccount",email=email))
+        return redirect(url_for("getaccount", email=email))
 
     elif request.method == 'GET':
 
@@ -417,11 +422,20 @@ def getaccount(email):
         update_details_form.surname_prefix.data = user.surname_prefix
         update_details_form.surname.data = user.surname
         update_details_form.phone_number.data = user.phone_number
+        update_details_form.role.data = user.role
 
-    if update_password_form.validate_on_submit() and 'update_password' in request.form:
-        user.password = generate_password_hash(update_password_form.password.data, 'sha256')
-        db.session.commit()
-        flash("Password has been successfully updated", "success")
+    if 'update_password' in request.form and update_password_form.is_submitted() and not update_password_form.validate():
+        flash("Please fix the errors below and try again.", "danger")
+
+    elif update_password_form.validate_on_submit() and 'update_password' in request.form:
+
+
+        if not user.is_deleted and not (user.id == 1 and current_user.id != 1):
+            user.password = generate_password_hash(update_password_form.password.data, 'sha256')
+            db.session.commit()
+            flash("Password has been successfully updated", "success")
+        else:
+            abort(403)
 
     return render_template("account.html", user=user, reports=user_reports, msgs=msgs, form_details=update_details_form,
                            form_password=update_password_form)
@@ -463,7 +477,6 @@ def deletemessage(msg_id):
 @app.route("/editreport/<int:report_id>", methods=["GET", "POST"])
 @login_required
 def editreport(report_id):
-
     report_encr = db.session.query(Report) \
         .where(report_id == Report.id) \
         .first()
@@ -478,7 +491,7 @@ def editreport(report_id):
     form = ReportForm()
 
     if form.is_submitted() and not form.validate():
-        flash("Please fix the errors below and try again.","danger")
+        flash("Please fix the errors below and try again.", "danger")
 
     elif form.validate_on_submit():
 
@@ -498,7 +511,6 @@ def editreport(report_id):
         return redirect(url_for('dashboard'))
 
     if not form.is_submitted():
-
         content = decrypt_data(report_encr.report_content, report_encr.user.enc_key)
         form.vulnerability.data = content['vulnerability']
         form.explanation.data = content['explanation']
@@ -509,17 +521,17 @@ def editreport(report_id):
 
     return render_template("report.html", title="Edit CVD Report", form=form, mode="Edit")
 
+
 @app.route("/deleteaccount/<string:email>", methods=["POST"])
 @login_required
 def deleteaccount(email):
-
-    #If the user is not an admin and not the owner of the account OR if the user is the main admin user, block
-    if (current_user.role != "Admin" and current_user.email != email) or (current_user.id == 1):
-        return abort(403)
-
     user = User.query.filter_by(email=email).first_or_404()
 
-    #Clear user's personal info
+    # If the user is not an admin and not the owner of the account OR if the user being deleted is the main admin user, block
+    if (current_user.role != "Admin" and current_user.email != email) or (user.id == 1):
+        return abort(403)
+
+    # Clear user's personal info
     user.surname = ""
     user.first_name = ""
     user.surname_prefix = ""
@@ -543,9 +555,10 @@ def deleteaccount(email):
         referrer = request.referrer
 
         if referrer.find("/account"):
-            return redirect(url_for("getaccount",email=email))
+            return redirect(url_for("getaccount", email=email))
         else:
             return redirect(url_for("dashboard"))
+
 
 @app.errorhandler(405)  # This creates a customise 405 error page to prevent information leakage
 def page_not_found(e):

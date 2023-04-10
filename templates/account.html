@@ -47,19 +47,19 @@
                         </div>
                         <div>
 
-                        {% if user.id != 1 %}
-                            {% if not user.is_deleted %}
-                                <button type="button" class="btn btn-danger delete-acc-btn" data-toggle="modal"
-                                        data-target="#confirm-delete-modal">
-                                    Permanently Delete Account
-                                </button>
+                            {% if user.id != 1 %}
+                                {% if not user.is_deleted %}
+                                    <button type="button" class="btn btn-danger delete-acc-btn" data-toggle="modal"
+                                            data-target="#confirm-delete-modal">
+                                        Permanently Delete Account
+                                    </button>
 
-                            {% else %}
+                                {% else %}
 
-                                <span class="badge bg-danger">Deleted Account</span>
+                                    <span class="badge bg-danger">Deleted Account</span>
 
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
                         </div>
                     </div>
                     <div class="card-body">
@@ -77,91 +77,118 @@
 
                         {% else %}
                             <!--starts here -->
-
-                            <form action="" method="post">
+                            {# If it's the case this the account details page for super admin while the viewing user is not the super admin
+                                display the form#}
+                            {% if not (user.id == 1 and current_user.id != 1) %}
+                                <form action="" method="post">
                                 {{ form_details.csrf_token }}
+                            {% endif %}
 
-                                <div class="form-group m-3">
-                                    <label for="email" class="form=control-label">Email:</label>
-                                    <input id="email" name="email" type="text"
-                                           class="form-control form-control-md delete-acc-btn"
-                                           value="{{ user.email }}"
-                                           disabled>
+                        <div class="form-group m-3">
+                            <label for="email" class="form=control-label">Email:</label>
+                            <input id="email" name="email" type="text"
+                                   class="form-control form-control-md delete-acc-btn"
+                                   value="{{ user.email }}"
+                                   disabled>
 
-                                </div>
+                        </div>
 
-                                <div class="form-group m-3">
-                                    {{ form_details.first_name.label(class="form=control-label") }}:
+                        {# Only display if admin user is logged in and the account being edited is not the main admin user #}
+                        {% if user.id != 1 and current_user.role == "Admin" %}
+                            <div class="form-group m-3">
+                                {{ form_details.role.label(class="form=control-label") }}:
 
-                                    {% if form_details.first_name.errors %}
-                                        {{ form_details.first_name(size=40,class="form-control form-control-md is-invalid") }}
-                                        <div class="invalid-feedback">
-                                            {% for error in form_details.first_name.errors %}
-                                                <span>{{ error }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    {% else %}
-                                        {{ form_details.first_name(size=40,class="form-control form-control-md") }}
-                                    {% endif %}
-                                </div>
-
-
-                                <div class="form-group m-3">
-                                    {{ form_details.surname_prefix.label(class="form=control-label") }}:
-
-                                    {% if form_details.surname_prefix.errors %}
-                                        {{ form_details.surname_prefix(class="form-control form-control-md is-invalid") }}
-                                        <div class="invalid-feedback">
-                                            {% for error in form_details.surname_prefix.errors %}
-                                                <span>{{ error }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    {% else %}
-                                        {{ form_details.surname_prefix(class="form-control form-control-md") }}
-                                    {% endif %}
-                                </div>
-
-
-                                <div class="form-group m-3">
-                                    {{ form_details.surname.label(class="form=control-label") }}:
-
-                                    {% if form_details.surname.errors %}
-                                        {{ form_details.surname(size=40,class="form-control form-control-md is-invalid") }}
-                                        <div class="invalid-feedback">
-                                            {% for error in form_details.surname.errors %}
-                                                <span>{{ error }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    {% else %}
-                                        {{ form_details.surname(size=40,class="form-control form-control-md") }}
-                                    {% endif %}
-                                </div>
-
-                                <div class="form-group m-3">
-                                    {{ form_details.phone_number.label(class="form=control-label") }}:
-
-                                    {% if form_details.phone_number.errors %}
-                                        {{ form_details.phone_number(size=40,class="form-control form-control-md is-invalid") }}
-                                        <div class="invalid-feedback">
-                                            {% for error in form_details.phone_number.errors %}
-                                                <span>{{ error }}</span>
-                                            {% endfor %}
-                                        </div>
-                                    {% else %}
-                                        {{ form_details.phone_number(size=40,class="form-control form-control-md") }}
-                                    {% endif %}
-                                </div>
-                                <div class="form-group my-3 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        {{ form_details.update_details(class="btn btn-primary") }}
+                                {% if form_details.role.errors %}
+                                    {{ form_details.role(class="form-control form-control-md is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form_details.role.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
                                     </div>
-                                    <div>
-                                        <button type="button" id="clear-personal" class="btn btn-outline-primary">Clear
-                                            Personal Fields
-                                        </button>
-                                    </div>
+                                {% else %}
+                                    {{ form_details.role(class="form-control form-control-md") }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group m-3">
+                            {{ form_details.first_name.label(class="form=control-label") }}:
+
+                            {% if form_details.first_name.errors %}
+                                {{ form_details.first_name(size=40,class="form-control form-control-md is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form_details.first_name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
                                 </div>
+                            {% else %}
+                                {{ form_details.first_name(size=40,class="form-control form-control-md") }}
+                            {% endif %}
+                        </div>
+
+
+                        <div class="form-group m-3">
+                            {{ form_details.surname_prefix.label(class="form=control-label") }}:
+
+                            {% if form_details.surname_prefix.errors %}
+                                {{ form_details.surname_prefix(class="form-control form-control-md is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form_details.surname_prefix.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form_details.surname_prefix(class="form-control form-control-md") }}
+                            {% endif %}
+                        </div>
+
+
+                        <div class="form-group m-3">
+                            {{ form_details.surname.label(class="form=control-label") }}:
+
+                            {% if form_details.surname.errors %}
+                                {{ form_details.surname(size=40,class="form-control form-control-md is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form_details.surname.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form_details.surname(size=40,class="form-control form-control-md") }}
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group m-3">
+                            {{ form_details.phone_number.label(class="form=control-label") }}:
+
+                            {% if form_details.phone_number.errors %}
+                                {{ form_details.phone_number(size=40,class="form-control form-control-md is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form_details.phone_number.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form_details.phone_number(size=40,class="form-control form-control-md") }}
+                            {% endif %}
+                        </div>
+                        {# If it's the case this the account details page for super admin while the viewing user is not the super admin
+                                display the /form amd buttons#}
+                        {% if not (user.id == 1 and current_user.id != 1) %}
+                        <div class="form-group my-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                {{ form_details.update_details(class="btn btn-primary") }}
+                            </div>
+                            <div>
+                                <button type="button" id="clear-personal" class="btn btn-outline-primary">Clear
+                                    Personal Fields
+                                </button>
+                            </div>
+                        </div>
+
+
                             </form>
+                        {% endif %}
                         {% endif %}
                     </div>
 
@@ -170,7 +197,9 @@
 
 
         </div>
-        {% if not user.is_deleted %}
+        {# If the user being viewed is not deleted and is not the main admin, but being viewed by another (admin) user #}
+        {# Only then display the password update fields (the main admin's password should only be editable by teh main admin)#}
+        {% if not user.is_deleted and not (user.id == 1 and current_user.id != 1) %}
             <div class="row mb-3">
 
                 <div class="col">
