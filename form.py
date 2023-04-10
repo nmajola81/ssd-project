@@ -21,11 +21,19 @@ class RegistrationForm(FlaskForm):
     accept_tos = BooleanField('I accept the terms and conditions', validators=[InputRequired()])
     submit = SubmitField('Register')
 
+    # def check_repeat_email(self, email):
+    #
+    #     user = User.query.filter_by(email=email.data).first()
+    #
+    #     if user:
+    #         # sends error message if user is found in the database.
+    #         raise ValidationError('Email already in use')
+
 class UpdateDetailsForm(FlaskForm):
     first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': '[None]'})
     surname_prefix = SelectField('Surname prefix', choices=[('','[None]'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
     surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': '[None]'})
-    phone_number = StringField('Phone number', render_kw={'placeholder': '[None]'})
+    phone_number = StringField('Phone number', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': '[None]'})
     update_details = SubmitField('Update Details')
 class UpdatePasswordForm(FlaskForm):
     password = PasswordField(validators=[Optional(), InputRequired(), Length(min=6, max=20)], render_kw={'placeholder': '[To change your password, type in a new password here]'})

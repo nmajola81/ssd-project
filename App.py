@@ -99,26 +99,38 @@ def register():
     elif form.validate_on_submit():
         # access the data from fields in the form like this print(form.email)
 
-        if User.query.filter_by(email=form.email.data).first():
-            flash('This email is unavailable. Please use a different email.', "warning")
-            return redirect('/register')
+        existing_email_user = User.query.filter_by(email=form.email.data).first()
 
-        user_enc_key = Fernet.generate_key()
+        if existing_email_user:
+            if not existing_email_user.is_deleted:
+                form.email.errors.append('Email %s is unavailable. Choose another.' % form.email.data)
+                form.email.data = ""
+                return render_template("register.html", form=form)
+            else:
 
-        add_user = User(
-            first_name=form.first_name.data,
-            surname_prefix=form.surname_prefix.data,
-            surname=form.surname.data,
-            email=form.email.data,
-            password=generate_password_hash(form.password.data, 'sha256'),
-            phone_number=form.phone_number.data,
-            role="User",
-            is_deleted=0,
-            enc_key=user_enc_key.decode('utf-8')
-        )
+                # existing_email_user.first_name.data =
+                form.populate_obj(existing_email_user)
+                existing_email_user.password = generate_password_hash(form.password.data, 'sha256')
+                existing_email_user.is_deleted = False
+                db.session.commit()
 
-        db.session.add(add_user)
-        db.session.commit()
+        else:
+            user_enc_key = Fernet.generate_key()
+
+            add_user = User(
+                first_name=form.first_name.data,
+                surname_prefix=form.surname_prefix.data,
+                surname=form.surname.data,
+                email=form.email.data,
+                password=generate_password_hash(form.password.data, 'sha256'),
+                phone_number=form.phone_number.data,
+                role="User",
+                is_deleted=0,
+                enc_key=user_enc_key.decode('utf-8')
+            )
+
+            db.session.add(add_user)
+            db.session.commit()
 
         flash(f"Account for {form.email.data} successfully created", "success")
         return redirect(url_for('login'))
@@ -129,9 +141,7 @@ def register():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if (current_user.is_authenticated):
-        print("Logged in")
         return redirect(url_for('dashboard'))
-        # return redirect('/dashboard')
 
     form = LoginForm()
     if form.is_submitted() and not form.validate():
@@ -140,9 +150,9 @@ def login():
     elif form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
 
-        if not user or not check_password_hash(user.password, form.password.data):
+        if not user or not check_password_hash(user.password, form.password.data) or user.is_deleted==True:
             flash("Login failed: Invalid/Unknown login credentials.", "danger")
-            return redirect('/login')
+            return redirect(url_for('login'))
 
         login_user(user)
         return redirect(url_for('dashboard'))
@@ -153,7 +163,7 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect('/login')
+    return redirect(url_for('login'))
 
 
 @app.route("/submitreport", methods=["GET", "POST"])
@@ -373,7 +383,10 @@ def getaccount(email):
     update_details_form = UpdateDetailsForm()
     update_password_form = UpdatePasswordForm()
 
-    if update_details_form.validate_on_submit() and 'update_details' in request.form:
+    if 'update_details' in request.form and update_details_form.is_submitted() and not update_details_form.validate():
+        flash("Please fix the errors below and try again.","danger")
+
+    elif 'update_details' in request.form and update_details_form.validate_on_submit():
 
         user.first_name = update_details_form.first_name.data
         user.surname_prefix = update_details_form.surname_prefix.data
@@ -382,6 +395,7 @@ def getaccount(email):
 
         db.session.commit()
         flash("Account details have been successfully updated", "success")
+        return redirect(url_for("getaccount",email=email))
 
     elif request.method == 'GET':
 
@@ -481,6 +495,42 @@ def editreport(report_id):
 
     return render_template("report.html", title="Edit CVD Report", form=form, mode="Edit")
 
+@app.route("/deleteaccount/<string:email>", methods=["POST"])
+@login_required
+def deleteaccount(email):
+
+    if current_user.role != "Admin" and current_user.email != email:
+        return abort(403)
+
+    user = User.query.filter_by(email=email).first_or_404()
+
+    #Clear user's personal info
+    user.surname = ""
+    user.first_name = ""
+    user.surname_prefix = ""
+    user.phone_number = ""
+    user.is_deleted = True
+
+    # user_reports = Report.query.filter_by(user_id=user.id).all()
+
+    # for user_report in user_reports:
+    #     Message.query.filter_by(report_id=user_report.id).delete()
+
+    # db.session.delete(user_reports)
+    db.session.commit()
+
+    flash("User account has been deleted", "success")
+
+    if current_user.email == email:
+        logout_user()
+        return redirect(url_for("index"))
+    else:
+        referrer = request.referrer
+
+        if referrer.find("/account"):
+            return redirect(url_for("getaccount",email=email))
+        else:
+            return redirect(url_for("dashboard"))
 
 @app.errorhandler(405)  # This creates a customise 405 error page to prevent information leakage
 def page_not_found(e):
