@@ -21,14 +21,6 @@ class RegistrationForm(FlaskForm):
     accept_tos = BooleanField('I accept the terms and conditions', validators=[InputRequired()])
     submit = SubmitField('Register')
 
-    # def check_repeat_email(self, email):
-    #
-    #     user = User.query.filter_by(email=email.data).first()
-    #
-    #     if user:
-    #         # sends error message if user is found in the database.
-    #         raise ValidationError('Email already in use')
-
 class UpdateDetailsForm(FlaskForm):
     role = SelectField('Role', choices=[('User','User'),('Admin', 'Admin')], render_kw={'placeholder': '[Role]',"style": "width: auto"}, default='User')
     first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': '[None]'})

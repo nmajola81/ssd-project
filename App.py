@@ -13,6 +13,8 @@ from encrypt import encrypt_data_dict, decrypt_data
 
 from cryptography.fernet import Fernet
 
+from password_strength import PasswordStats
+
 app = Flask(__name__)  # create an instance of the Flask class
 
 app.config['SECRET_KEY'] = '5c7d9fe414fc668876f91637635567c4'  # set the secret key
@@ -92,11 +94,20 @@ def register():
 
     form = RegistrationForm()
 
-    if form.is_submitted() and not form.validate():
+    stats = PasswordStats(form.password.data)
+
+    weakpass = False
+    if stats.strength() < 0.5:
+        weakpass = True
+
+    if form.is_submitted() and (not form.validate() or weakpass):
+        if weakpass:
+            form.password.errors.append(
+            "Password not strong enough. Avoid consecutive characters and easily guessed words.")
+
         flash("Please fix the errors below and try again.", "danger")
 
     elif form.validate_on_submit():
-        # access the data from fields in the form like this print(form.email)
 
         existing_email_user = User.query.filter_by(email=form.email.data).first()
 
@@ -436,7 +447,17 @@ def getaccount(email):
         update_details_form.phone_number.data = user.phone_number
         update_details_form.role.data = user.role
 
-    if 'update_password' in request.form and update_password_form.is_submitted() and not update_password_form.validate():
+    stats = PasswordStats(update_password_form.password.data)
+
+    weakpass = False
+    if stats.strength() < 0.5:
+        weakpass = True
+
+    if 'update_password' in request.form and update_password_form.is_submitted() and (not update_password_form.validate() or weakpass):
+        if weakpass:
+            update_password_form.password.errors.append(
+            "Password not strong enough. Avoid consecutive characters and easily guessed words.")
+
         flash("Please fix the errors below and try again.", "danger")
 
     elif update_password_form.validate_on_submit() and 'update_password' in request.form:
