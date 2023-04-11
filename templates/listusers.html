@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}List Users{% endblock %}
+
+
+{% block body %}
+
+    {% for user in users %}
+
+        {% if not user.id == 1 %}
+
+        <div class="modal fade" id="confirm-delete-modal-{{ user.id }}" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button type="button" class="close" data-dismiss="modal"
+                                data-target="#confirm-delete-modal-{{ user.id }}" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Warning: Permanently delete the account for {{ user.email }}?
+                            deleted!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary close"
+                                data-target="#confirm-delete-modal-{{ user.id }}" data-dismiss="modal">Cancel
+                        </button>
+                        <form id="deleteAccountForm{{ user.id }}"
+                              action="{{ url_for('deleteaccount', email=user.email) }}" method="POST">
+                            <input class="btn btn-danger" type="submit" value="Delete">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+    {% endfor %}
+
+
+    <div class="container">
+
+        <div class="card">
+
+            <div class="card-header">
+                All Users
+            </div>
+            <div class="card-body" style="max-height: 30rem;overflow-y: auto;">
+
+                <table class="table">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Email Address</th>
+                        <th>Type</th>
+                        <th>Surname Prefix</th>
+                        <th>First Name</th>
+                        <th>Surname</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    {% for user in users %}
+
+                        <tr>
+
+                            <td class="align-middle">
+                                <a href="{{ url_for('getaccount', email=user.email) }}"
+                                   class="badge rounded-pill bg-primary text-decoration-none">{{ user.email }}</a>
+                            </td>
+                            <td class="align-middle">{{ user.role }}</td>
+                            <td class="align-middle">{{ user.surname_prefix }}</td>
+                            <td class="align-middle">{{ user.first_name }}</td>
+                            <td class="align-middle">{{ user.surname }}</td>
+
+                            <td class="align-middle">
+                                <a href="{{ url_for('getaccount', email=user.email) }}" class="btn btn-secondary">Info /
+                                    Edit</a>
+                                {% if user.id != 1 %}
+                                    <button type="button" class="btn btn-danger delete-account-btn" data-toggle="modal"
+                                            data-target="#confirm-delete-modal-{{ user.id }}">Delete
+                                    </button>
+                                {% endif %}
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+                </table>
+
+                <script>
+                    $('.delete-account-btn').on('click', function () {
+                        const accountmodal = $(this).data('target');
+                        $(accountmodal).modal('show');
+                    });
+                    $('.close').on('click', function () {
+                        const accountmodal = $(this).data('target');
+                        $(accountmodal).modal('hide');
+                    });
+
+                </script>
+
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

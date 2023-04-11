@@ -241,7 +241,7 @@ def allusers():
     users = db.session.query(User) \
         .order_by(User.id.asc()).all()
 
-    return render_template("listusers.html", reports=reports, role=current_user.role)
+    return render_template("listusers.html", users=users)
 
 
 @app.route("/messaging/<int:report_id>/<int:msg_id>", methods=["GET", "POST"])
