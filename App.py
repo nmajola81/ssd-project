@@ -111,6 +111,9 @@ def register():
                 form.populate_obj(existing_email_user)
                 existing_email_user.password = generate_password_hash(form.password.data, 'sha256')
                 existing_email_user.is_deleted = False
+                #Reset to a User; admin will need to grant Admin rights again
+                #Reset to a User; admin will need to grant Admin rights again
+                existing_email_user.role = "User"
                 db.session.commit()
 
         else:
@@ -232,16 +235,24 @@ def dashboard():
     return render_template("dashboard.html", reports=reports, role=current_user.role)
 
 
-@app.route("/listusers")
+@app.route("/listusers/<int:active>")
 @login_required
-def allusers():
+def allusers(active):
     if current_user.role != "Admin":
         abort(403)
 
-    users = db.session.query(User) \
-        .order_by(User.id.asc()).all()
+    if active == 1:
+        users = db.session.query(User) \
+            .where(User.is_deleted==False) \
+            .order_by(User.id.asc()).all()
+    elif active == 0:
+        users = db.session.query(User) \
+            .where(User.is_deleted==True) \
+            .order_by(User.id.asc()).all()
+    else:
+        pass
 
-    return render_template("listusers.html", users=users)
+    return render_template("listusers.html", users=users, active=active)
 
 
 @app.route("/messaging/<int:report_id>/<int:msg_id>", methods=["GET", "POST"])
@@ -270,7 +281,8 @@ def messaging(report_id, msg_id=None):
         "id": report_encr.id,
         "user_id": report_encr.user_id,
         "user_email": report_encr.user.email,
-        "date_time": report_encr.date_time.strftime('%Y-%m-%d %H:%M')
+        "date_time": report_encr.date_time.strftime('%Y-%m-%d %H:%M'),
+        "user_is_deleted": report_encr.user.is_deleted
     }
     report.update(content)
 
@@ -532,10 +544,10 @@ def deleteaccount(email):
         return abort(403)
 
     # Clear user's personal info
-    user.surname = ""
-    user.first_name = ""
-    user.surname_prefix = ""
-    user.phone_number = ""
+    # user.surname = ""
+    # user.first_name = ""
+    # user.surname_prefix = ""
+    # user.phone_number = ""
     user.is_deleted = True
 
     # user_reports = Report.query.filter_by(user_id=user.id).all()
@@ -554,10 +566,10 @@ def deleteaccount(email):
     else:
         referrer = request.referrer
 
-        if referrer.find("/account"):
+        if referrer.find("/account") >= 0:
             return redirect(url_for("getaccount", email=email))
         else:
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("allusers",active=1))
 
 
 @app.errorhandler(405)  # This creates a customise 405 error page to prevent information leakage

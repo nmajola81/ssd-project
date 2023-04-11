@@ -85,6 +85,7 @@
                         <p class="card-text"><strong>Reported by:</strong> <a
                                 href="{{ url_for('getaccount', email=report.user_email) }}"
                                 class="badge rounded-pill bg-primary text-decoration-none">{{ report.user_email }}</a>
+                            {% if report.user_is_deleted %}<span class="badge bg-danger">Deleted Account</span> {% endif %}
                         </p>
                         <p class="card-text"><strong>Vulnerability:</strong> {{ report.vulnerability }}</p>
                         <p class="card-text"><strong>Details:</strong> {{ report.explanation }} </p>
@@ -133,28 +134,10 @@
                         </div>
                     </div>
                 </div>
+            {% if not report.user_is_deleted %}
                 <form action="" method="post">
                     {{ form.hidden_tag() }}
                     <div class="row my-3">
-
-
-                        {#                        <div class="col d-flex align-items-center">#}
-                        {#                            <div class="input-group">#}
-                        {#                                <span class="input-group-text">Secure Message</span>#}
-                        {#                                {{ form.message(class="form-control flex-grow-1 me-3") }}#}
-                        {#                            </div>#}
-                        {#                            {{ form.submit(class="btn btn-primary btn-lg") }}#}
-                        {##}
-                        {#                        </div>#}
-
-{#                        <div class="col d-flex align-items-center">#}
-{#                            <div class="input-group">#}
-{#                                <span class="input-group-text">Secure Message</span>#}
-{#                                {{ form.message(class="form-control flex-grow-1 me-3") }}#}
-{#                            </div>#}
-{#                            {{ form.submit(class="btn btn-primary btn-lg") }}#}
-{##}
-{#                        </div>#}
 
                         {# Starts #}
                         <div class="col d-flex align-items-center">
@@ -189,6 +172,7 @@
 
                     </div>
                 </form>
+            {% endif %}
             </div>
         </div>
     </div>
