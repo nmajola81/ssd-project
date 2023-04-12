@@ -6,10 +6,32 @@
 
 {% block body %}
 <div class="container"> <!--Puts the body content in a container to improve layout-->
-<h1>This is the home page using inheritence</h1>
-<h2>Hi, {{data}}! this variable [data] (contents=Steve) has been passed from the route in app.py
-    you can use filters here aswell e.g. |capitalize it can aslo be a list or dictionary
-</h2>
+    <h2>
+        Fighting cybercrime in the Netherlands</h2>
+  <div class="intro"><p>The National Cyber Security Centre (NCSC) is responsible for overseeing digital security in the Netherlands. One of its main tasks is to make the Netherlands more resistant to internet crime. The NCSC falls under the authority of the National Coordinator for counter-terrorism and Security (NCTV).</p></div>
+    <h2>Tasks of the NCSC</h2>
+          <p>As the body responsible for digital security in the Netherlands, the NCSC carries out a number of tasks:</p>
+
+  <ul>
+   <li>It continuously monitors all (potentially) suspect sources on the internet. When it identifies a threat (such as a virus or an attack on a website), it alerts public authorities and organisations.</li>
+   <li>It advises organisations on how to protect themselves from online threats.</li>
+   <li>It closely monitors developments in digital technology and updates security systems. This prevents such threats as the shutdown of telephone traffic.</li>
+  </ul>
+  <h2>Report flaws you have discovered in Government and other web applications.</h2>
+   <p>Have you discovered a security flaw in an ICT system belonging to central government or another organisation? If so, you can use this website to report these flaws by registering and then submitting a report.
+    Use the links at the top of this page to register for account, then login and complete the form to submit a secure and confidential report.</p>
+   <p>All reports are treated in the strictest confidence and we do not share you data with 3rd parties.
+       We take your privacy very seriously. Use the links to find out more about our <a href="{{ url_for('privacy') }}">privacy</a> and <a href="{{ url_for('cookies') }}">cookie</a> policies for users of this site.</p>
+
+    <div class="row">
+        <div class="col">
+            <a href="{{ url_for('login')}}" class="btn btn-primary">Login</a><a href="{{ url_for('register')}}" class="btn btn-primary mx-4">Register</a>
+        </div>
+        <div class="col">
+
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
