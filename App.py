@@ -15,6 +15,9 @@ from cryptography.fernet import Fernet
 
 from password_strength import PasswordStats
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 app = Flask(__name__)  # create an instance of the Flask class
 
 app.config['SECRET_KEY'] = '5c7d9fe414fc668876f91637635567c4'  # set the secret key
@@ -28,6 +31,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+limiter = Limiter(get_remote_address,
+                  app=app,
+                  default_limits=["200 per day", "50 per hour"]) # Create an instance of the limiter class. Set default requests limits to mitigate spamming/ DOS attacks
 
 # Define the routes for the app to display specific pages
 
@@ -88,6 +94,7 @@ def index():
 
 
 @app.route("/register", methods=["GET", "POST"])
+@limiter.limit("1/second", override_defaults=False) # Uses default limits plus only allows one request per second
 def register():
     if (current_user.is_authenticated):
         return redirect(url_for('dashboard'))
@@ -152,6 +159,7 @@ def register():
 
 
 @app.route("/login", methods=["GET", "POST"])
+# @limiter.limit("1/second", override_defaults=False) # Uses default limits plus only allows one request per second
 def login():
     if (current_user.is_authenticated):
         return redirect(url_for('dashboard'))
@@ -592,6 +600,14 @@ def deleteaccount(email):
         else:
             return redirect(url_for("allusers",active=1))
 
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+@app.route("/cookies")
+def cookies():
+    return render_template("cookies.html")
 
 @app.errorhandler(405)  # This creates a customise 405 error page to prevent information leakage
 def page_not_found(e):

@@ -11,22 +11,22 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class RegistrationForm(FlaskForm):
-    first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': 'Enter your first name'})
-    surname_prefix = SelectField('Surname prefix', choices=[('','[None]'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
-    surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': 'Enter your surname'})
+    first_name = StringField('First name (Optional)', validators=[Length(max=40)], render_kw={'placeholder': 'Enter your first name'})
+    surname_prefix = SelectField('Surname prefix (Optional)', choices=[('','Surname prefix (Optional)'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
+    surname = StringField('Surname (Optional)', validators=[Length(max=40)],render_kw={'placeholder': 'Enter your surname'})
     email = EmailField(validators=[InputRequired(), Email(), Length(max=40)], render_kw={'placeholder': 'Email'})
     password = PasswordField(validators=[InputRequired(), Length(min=6, max=25)], render_kw={'placeholder': 'Password'})
     confirm = PasswordField(validators=[InputRequired(),EqualTo('password', message='Passwords must match'), Length(min=6, max=25)], render_kw={'placeholder': 'Confirm Password'})
-    phone_number = StringField('Phone number', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': 'Enter your mobile/phone number'})
-    accept_tos = BooleanField('I accept the terms and conditions', validators=[InputRequired()])
+    phone_number = StringField('Phone number (Optional)', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': 'Enter your mobile/phone number'})
+    accept_tos = BooleanField('I accept the Privacy and Cookie policies of this website', validators=[InputRequired()])
     submit = SubmitField('Register')
 
 class UpdateDetailsForm(FlaskForm):
     role = SelectField('Role', choices=[('User','User'),('Admin', 'Admin')], render_kw={'placeholder': '[Role]',"style": "width: auto"}, default='User')
-    first_name = StringField('First name', validators=[Length(max=40)], render_kw={'placeholder': '[None]'})
-    surname_prefix = SelectField('Surname prefix', choices=[('','[None]'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
-    surname = StringField('Surname', validators=[Length(max=40)],render_kw={'placeholder': '[None]'})
-    phone_number = StringField('Phone number', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': '[None]'})
+    first_name = StringField('First name (Optional)', validators=[Length(max=40)], render_kw={'placeholder': '[None]'})
+    surname_prefix = SelectField('Surname prefix (Optional)', choices=[('','Surname prefix (Optional)'),('Mr', 'Mr'), ('Mrs', 'Mrs'), ('Ms', 'Ms'), ('Prof', 'Prof'), ('Dr', 'Dr')], render_kw={'placeholder': 'Enter your surname prefix',"style": "width: auto"}, default='')
+    surname = StringField('Surname (Optional)', validators=[Length(max=40)],render_kw={'placeholder': '[None]'})
+    phone_number = StringField('Phone number (Optional)', validators=[Optional(), Length(min=6, max=20)], render_kw={'placeholder': '[None]'})
     update_details = SubmitField('Update Details')
 class UpdatePasswordForm(FlaskForm):
     password = PasswordField(validators=[Optional(), InputRequired(), Length(min=6, max=20)], render_kw={'placeholder': '[To change your password, type in a new password here]'})
