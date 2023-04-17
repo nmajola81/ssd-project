@@ -7,7 +7,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from encrypt import encrypt_data_dict, decrypt_data
 
@@ -21,6 +21,7 @@ from flask_limiter.util import get_remote_address
 app = Flask(__name__)  # create an instance of the Flask class
 
 app.config['SECRET_KEY'] = '5c7d9fe414fc668876f91637635567c4'  # set the secret key
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=10)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
 db = SQLAlchemy(app)
@@ -634,3 +635,18 @@ def internal_server_error(e):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+#  import pyotp
+#  def OTP(): #The OTP function is responsible for providing a secondary form of authentication for the user, in this case, the user will receive a passcode, which they will need to repeat
+#    totp = pyotp.TOTP('base32secret3232')
+#    print("This is your one-time passcode: ")
+#    print(totp.now())
+#    userOTP = input("Please provided your passcode: ")
+#    otpass = totp.verify(userOTP)
+#    if otpass == True: #If the passcode is correct, you now have access to the rest of the application
+#        print("You are now logged in")
+#        return True
+#    else:
+#        print("Access Forbidden") #If the passcode is incorrect, the program terminates (multiple retries are not recommended for OTP)
+#        return False
