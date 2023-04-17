@@ -7,11 +7,11 @@ This application allows the user to submit security vulnerability reports for fu
 ### Instructions on Execution
 
 The application requires several libraries to be included and installed. These can be either installed individually or by utilising the provided requirements.txt file and then running
-pip install -r requirements.txt in the terminal.
+```pip install -r requirements.txt``` in the terminal.
 
 The code was written in Python version 3.9, but depending on the interpreter, the version used by the system might need to be downgraded to 3.8. The latest version of pip needs to be installed to support certain libraries – this version is 23.1
-1.	Run the App.py file
-2.	The application will run on the local host (http://127.0.0.1:5000)
+1.	Run the App.py file; this can be by running the command ```python App.py``` in the terminal.
+2.	The application will run on the local host (http://127.0.0.1:5000); navigate to this address in the browser to access the app.
 3.	To register the new user, go to step 4 - “Registration”, to log in as an existing user, go to step 5 - “Login”
 4.	Registration: Provide an e-mail, and a strong password and accept the policies
 5.	Provide an existing email address and password
@@ -26,21 +26,24 @@ The code was written in Python version 3.9, but depending on the interpreter, th
 
 ### Default Logins
 
-Several users exist on the users, but the default users are as follows:
+The default users are as follows:
 
 |email                 |Password   |role        |
 |----------------------|-----------|------------|
-|admin@email.com       |password   |Super Admin |
-|user@email.com        |abcd1234   |Admin       |
-|pietpompies@email.com |abcd1234   |User        |
+|admin@ssdproj.com     |admin@1234 |Admin 		|
+|user@ssdproj.com      |user@1234  |User        |
+|user2@ssdproj.com     |user2@1234 |Admin       |
 
+### Resetting the Database to Default State
+
+A helper utility script ```initialize_db.py``` is provided which just deletes all data records from the database (users, reports and messages) and then adds in a set of default users (as per the list above) and some placeholder demo reports and messages. It can be used by running ```python initialize_db.py``` at the command line while in the application folder.
 
 ## Additional Information, limitations and potential improvements:
 
--	The administrator is an internally created account populated into the database from the backend, this admin has the ability to elevate user accounts to admin level when needed
+-	The administrator (user id == 1) is an internally created account populated into the database from the backend; this admin has the ability to elevate user accounts to admin level when needed; the account can't be deleted unlike other accounts; it's role can't be changed; and it's details can only be edited by this user themselves
 -   One significant improvement can be the inclusion of a more comprehensive access control system that defines exactly what tasks each user can and can't perform. Currently:
--		The "User" can create reports, edit and view their reports, post messages pertaining to their reports, delete their messages, edit their own account details, and delete their account.
--		The "Admin" (any user that is assigned the "Admin" role with an account that isn't admin@email.com) can do everything that users can do, as well as viewing/editing/deleting all reports, messages and accounts.
+	-	The "User" can create reports, edit and view their reports, post messages pertaining to their reports, delete their messages, edit their own account details, and delete their account.
+	-	The "Admin" (any user that is assigned the "Admin" role with an account that isn't admin@email.com) can do everything that users can do, as well as viewing/editing/deleting all reports, messages and accounts.
 
 -	A more comprehensive access control system coupled with enabling two-factor authentication (2FA), especially for sensitive tasks such as editing and deleting of reports, messages or accounts will help secure the system further; e.g. when an admin user tries to edit/delete a report, the super admin should receive a notification and accept the action. 2FA was not included as this would make testing and demonstrating the app significantly more challenging in this demo; however, sample code for this feature is provided at the bottom of App.py class
 -	Any permanently deleted user will have their personal details deleted but their email, reports and messages will remain in the database for a specific amount of time depending on the regulations (anywhere between 1 day to several years)
@@ -50,6 +53,28 @@ Several users exist on the users, but the default users are as follows:
 -	In a production environment, a secure dedicated database management system such as PostgreSQL or MySQL, separate from the web application, should be used. For this demo, we did not have a server to host a dedicated database and we therefore used an SQLite database. The database interface used is the SQLAlchemy library which means that it should be very easy and seamless to change to another database management system such as MySQL or PostgreSQL. The change of database can be made in the App.py file on line 24
 -	The application features the use of cookies, allowing the user’s session to be remembered
 -	The application features the use of a limiter, limiting the number of requests a user can make per minute/second, to protect against potential memory overflow attacks (DoS/DDoS)
+
+## Differences of final solution to initial design document
+
+### Use Case Diagrams
+
+With regard to the use case diagrams, the initial design document and the final implemented system match almost perfectly, where all the tasks shown in the initial design document are provided to the relevant users. The exceptions are:
+-	Editing messages; this was omitted given the ease of posting new messages and given that CRUD capabilities were demonstrated with Users and Reports.
+-	User deactivation; user deactivation in the final system is packaged as deletion but is actually just a deactivation of the user; it was decided to avoid complete deletion of the user at this stage. 
+-	User activation; user reactivation only takes place by means of a user re-registering on the site (after their account has been deleted).
+
+Also, the use case diagrams in the initial design document only specify two types of users; an Admin and User. In the final system, there is a Super Admin user (user with user.id==1 and role=="Admin"), Admin users (users with user.id!=1 and role=="Admin") and Users (users with role=="User"). While Admin users can do almost everything that the super admin can do, they can't edit the super admin account's details or password; furthermore, the super admin account can't be deleted (even by the super admin themselves), neither can it's role be changed. 
+
+### Class Diagram
+
+The design of the final system differs very significantly with the design shown in the class diagram in the design document. Ultimately, we ended up with three classes: one for the User, one for Reports and one for Messages, which reflects the design of the database as well. The functions used are mostly those of Python Flask itself.
+
+### Sequence Diagram
+
+The sequence diagram also reflects very closely the implementation of the final system in that almost all tasks in the diagram are represented in the final system and function according to the way that the diagram initially proposed. The exceptions are below:
+-	2FA was not included in the final implementation
+-	Password recovery was not included
+-	While all of the data generated by the user is summarily displayed on the user's account page, there is currently no option to email this data to the user, as this presents a very significant security risk (given that the information will exclusively contain information about vulnerabilities in Government software).
 
 
 ## References
